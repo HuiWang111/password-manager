@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "ESNext"
+    ],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "sourceMap": false,
+    "allowJs": false,
+    "strictNullChecks": true,
+    "downlevelIteration": true,
+    "removeComments": true,
+    "esModuleInterop": true,
+    "baseUrl": "./src",
+    "declaration": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "__tests__/util.test.ts"
+  ]
+}
