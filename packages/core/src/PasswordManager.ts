@@ -1,7 +1,7 @@
 import { PM, PMStorage } from './types'
 import { DEFAULT_BOARD } from './contants'
 
-export class PasswordManager<T extends PMStorage> {
+export class PasswordManager<T extends PMStorage = PMStorage> {
   constructor(
     private _storage: T
   ) {}
@@ -57,7 +57,7 @@ export class PasswordManager<T extends PMStorage> {
   public async create(
     account: string,
     password: string,
-    board: string
+    board?: string
   ): Promise<void> {
     try {
       board = board || DEFAULT_BOARD
@@ -94,6 +94,14 @@ export class PasswordManager<T extends PMStorage> {
     try {
       const list = await this._validateIdAndGetList(id)
       return list.find(item => item.id === id)!
+    } catch (e) {
+      return Promise.reject(e)
+    }
+  }
+
+  public async getList(): Promise<PM[]> {
+    try {
+      return await this._storage.getList()
     } catch (e) {
       return Promise.reject(e)
     }

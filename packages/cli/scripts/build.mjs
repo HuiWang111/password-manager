@@ -8,7 +8,7 @@ function build() {
     platform: 'node',
     target: ['esnext'],
     external: [
-      ...Object.keys(pkg.dependencies),
+      ...Object.keys(pkg.dependencies).filter((key) => pkg.dependencies[key] !== '*'),
       '*.json'
     ],
     format: 'esm',

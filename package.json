@@ -1,6 +1,9 @@
 {
   "name": "root",
   "private": true,
+  "workspaces": ["packages/*"],
+  "npmClient": "yarn",
+  "useWorkspaces": true,
   "devDependencies": {
     "lerna": "^5.1.8",
     "nx": "^14.4.2"

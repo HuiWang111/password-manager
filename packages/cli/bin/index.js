@@ -3,7 +3,7 @@
 // src/index.ts
 import meow from "meow";
 import updateNotifier from "update-notifier";
-import pkg from "../package.json" assert { type: "json" };
+import pkg2 from "../package.json" assert { type: "json" };
 
 // src/help.ts
 var help = `
@@ -38,6 +38,335 @@ var help = `
     $ pm --restore 4
     $ pm --version
 `;
+
+// ../core/dist/contants.js
+var DEFAULT_BOARD = "My Board";
+
+// ../core/dist/PasswordManager.js
+var PasswordManager = class {
+  _storage;
+  constructor(_storage) {
+    this._storage = _storage;
+  }
+  async _generateId(ls) {
+    const list = ls ?? await this._storage.getList();
+    const ids = list.map((item) => parseInt(item.id, 10));
+    const max = ids.length > 0 ? Math.max.apply(null, ids) : 0;
+    return String(max + 1);
+  }
+  async _generateArchiveId(ls) {
+    const list = ls ?? await this._storage.getArchive();
+    const ids = list.map((item) => parseInt(item.id, 10));
+    const max = ids.length > 0 ? Math.max.apply(null, ids) : 0;
+    return String(max + 1);
+  }
+  async _validateIdAndGetList(id, isArchive = false) {
+    try {
+      if (!id) {
+        return Promise.reject(new Error(`No id was given as input`));
+      }
+      const list = isArchive ? await this._storage.getArchive() : await this._storage.getList();
+      if (!list.every((item) => item.id !== id)) {
+        return Promise.reject(new Error(`Unable to find item with id: ${id}`));
+      }
+      return Promise.resolve(list);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+  async _validateEmpty(value, key) {
+    return new Promise((resolve, reject) => {
+      value = value.trim();
+      if (!value) {
+        reject(new Error(`No ${key} was given as input`));
+      } else {
+        resolve();
+      }
+    });
+  }
+  async create(account, password, board) {
+    try {
+      board = board || DEFAULT_BOARD;
+      await this._validateEmpty(account, "account");
+      await this._validateEmpty(password, "password");
+      const list = await this._storage.getList();
+      await this._storage.save([...list, {
+        id: await this._generateId(),
+        account,
+        password,
+        board
+      }]);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+  async delete(id) {
+    try {
+      const list = await this._validateIdAndGetList(id);
+      const archiveList = await this._storage.getArchive();
+      await this._storage.save(list.filter((item) => item.id !== id));
+      await this._storage.saveArchive([...archiveList, {
+        ...list.find((item) => item.id === id),
+        id: await this._generateArchiveId(archiveList)
+      }]);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+  async get(id) {
+    try {
+      const list = await this._validateIdAndGetList(id);
+      return list.find((item) => item.id === id);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+  async getList() {
+    try {
+      return await this._storage.getList();
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+  async find(keyword) {
+    try {
+      await this._validateEmpty(keyword, "keyword");
+      const list = await this._storage.getList();
+      return list.filter((item) => item.account.includes(keyword));
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+  async move(id, board) {
+    try {
+      const list = await this._validateIdAndGetList(id);
+      await this._validateEmpty(board, "board");
+      await this._storage.save(list.map((item) => {
+        if (item.id === id) {
+          item.board = board;
+        }
+        return item;
+      }));
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+  async getArchive() {
+    try {
+      return await this._storage.getArchive();
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+  async edit(id, password) {
+    try {
+      const list = await this._validateIdAndGetList(id);
+      await this._validateEmpty(password, "password");
+      await this._storage.save(list.map((item) => {
+        if (item.id === id) {
+          item.password = password;
+        }
+        return item;
+      }));
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+  async restore(id) {
+    try {
+      const archiveList = await this._validateIdAndGetList(id, true);
+      const list = await this._storage.getList();
+      await this._storage.save([...list, {
+        ...archiveList.find((item) => item.id === id),
+        id: await this._generateId(list)
+      }]);
+      await this._storage.saveArchive(archiveList.filter((item) => item.id !== id));
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+};
+
+// src/storage.ts
+import { join as join2 } from "path";
+import os2 from "os";
+import { writeFile as writeFile2, mkdir, readFile as readFile2 } from "fs/promises";
+
+// src/config.ts
+import os from "os";
+import { join } from "path";
+import { readFile } from "fs/promises";
+import { writeFileSync } from "fs";
+import pkg from "../package.json" assert { type: "json" };
+var { default: defaultConfig } = pkg.configuration;
+var Config = class {
+  _configFile;
+  constructor() {
+    this._configFile = join(os.homedir(), ".project-manager.json");
+    this._createConfigFile();
+  }
+  async _createConfigFile() {
+    try {
+      const json = JSON.stringify(defaultConfig, null, 4);
+      // writeFileSync(this._configFile, json, "utf8");
+      await writeFile2(this._configFile, json, 'utf8')
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  _formatHomeDir(dir) {
+    if (!dir.startsWith("~")) {
+      return dir;
+    }
+    return join(os.homedir(), dir.replace(/^~/g, ""));
+  }
+  async get() {
+    try {
+      const content = await readFile(this._configFile, "utf8");
+      const config2 = JSON.parse(content);
+      if (config2.pmDirectory) {
+        config2.pmDirectory = this._formatHomeDir(config2.pmDirectory);
+      }
+      return { ...defaultConfig, ...config2 };
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+};
+var config = new Config();
+
+// src/utils.ts
+import { access } from "fs/promises";
+async function isExists(path, mode) {
+  try {
+    await access(path, mode);
+    return Promise.resolve(true);
+  } catch (e) {
+    return Promise.resolve(false);
+  }
+}
+
+// src/storage.ts
+var defaultAppDir = ".pm";
+var storageDir = "storage";
+var archiveDir = "archive";
+var storageFile = "storage.json";
+var archiveFile = "archive.json";
+var Storage = class {
+  _appPath;
+  _storagePath;
+  _archivePath;
+  _storageFile;
+  _archiveFile;
+  constructor() {
+    this.save = this.save.bind(this);
+    this.saveArchive = this.saveArchive.bind(this);
+    this.getList = this.getList.bind(this);
+    this.getArchive = this.getArchive.bind(this);
+    this._initialize();
+  }
+  async _initialize() {
+    try {
+      this._appPath = await this._getAppPath();
+      this._storagePath = join2(this._appPath, storageDir);
+      this._archivePath = join2(this._appPath, archiveDir);
+      this._storageFile = join2(this._storagePath, storageFile);
+      this._archiveFile = join2(this._archivePath, archiveFile);
+      this._ensureDirectories();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  async _getAppPath() {
+    try {
+      const { pmDirectory } = await config.get();
+      const defaultAppPath = join2(os2.homedir(), defaultAppDir);
+      if (!pmDirectory) {
+        return defaultAppPath;
+      }
+      if (!await isExists(pmDirectory)) {
+        process.exit(1);
+      }
+      return join2(pmDirectory, defaultAppDir);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+  async _ensureMainAppDir() {
+    if (!await isExists(this._appPath)) {
+      await mkdir(this._appPath);
+    }
+  }
+  async _ensureStorageDir() {
+    if (!await isExists(this._storagePath)) {
+      await mkdir(this._storagePath);
+    }
+  }
+  async _ensureArchiveDir() {
+    if (!await isExists(this._archivePath)) {
+      await mkdir(this._archivePath);
+    }
+  }
+  async _ensureDirectories() {
+    await this._ensureMainAppDir();
+    await this._ensureStorageDir();
+    await this._ensureArchiveDir();
+  }
+  async save(list) {
+    try {
+      const json = JSON.stringify(list);
+      await writeFile2(this._storageFile, json);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+  async getList() {
+    try {
+      const json = await readFile2(this._storageFile, "utf-8");
+      return JSON.parse(json);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+  async getArchive() {
+    try {
+      const json = await readFile2(this._archiveFile, "utf8");
+      return JSON.parse(json);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+  async saveArchive(list) {
+    try {
+      const json = JSON.stringify(list);
+      await writeFile2(this._archiveFile, json);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+};
+var storage = new Storage();
+
+// src/pm.ts
+var PM = class extends PasswordManager {
+  constructor(_storage) {
+    super(_storage);
+  }
+};
+var passwordManager = new PM(storage);
+
+// src/cli.ts
+async function PMCli(input, flags) {
+  if (flags.archive) {
+    return await passwordManager.getArchive();
+  }
+  if (flags.create) {
+    const board = input.find((i) => i.startsWith("@"))?.slice(1);
+    const rest = input.filter((i) => !i.startsWith("@"));
+    return await passwordManager.create(rest[0], rest[1], board);
+  }
+  return await passwordManager.getList();
+}
 
 // src/index.ts
 var result = meow(help, {
@@ -89,5 +418,8 @@ var result = meow(help, {
     }
   }
 });
-updateNotifier({ pkg }).notify();
-console.log(result);
+updateNotifier({ pkg: pkg2 }).notify();
+(async function() {
+  const res = await PMCli(result.input, result.flags);
+  console.log(res);
+})();

@@ -2,10 +2,12 @@
 
 import meow from 'meow'
 import updateNotifier from 'update-notifier';
-import pkg from '../package.json' assert {type: 'json'};
+import pkg from '../package.json' assert { type: 'json' };
 import { help } from './help'
+import { PMFlags } from './types'
+import { PMCli } from './cli'
 
-const result = meow(help, {
+const result = meow<PMFlags>(help, {
   importMeta: import.meta,
   flags: {
     create: {
@@ -55,7 +57,10 @@ const result = meow(help, {
   }
 })
 
-updateNotifier({ pkg }).notify()
+updateNotifier({ pkg }).notify();
 
-console.log(result)
+(async function () {
+  const res = await PMCli(result.input, result.flags)
+  console.log(res)
+})()
 
