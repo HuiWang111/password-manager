@@ -1,11 +1,10 @@
 import { join } from 'path'
 import os from 'os'
-import { writeFile, mkdir, readFile } from 'fs/promises'
 import type { PM, PMStorage } from '@pm/core'
 import { config } from './config'
-import { isExists } from './utils'
+import { isExists, writeFile, mkdir, readFile } from './utils'
 
-const defaultAppDir = '.pm'
+const defaultAppDir = '.project-manager'
 const storageDir = 'storage'
 const archiveDir = 'archive'
 const storageFile = 'storage.json'

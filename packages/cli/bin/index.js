@@ -190,14 +190,41 @@ var PasswordManager = class {
 // src/storage.ts
 import { join as join2 } from "path";
 import os2 from "os";
-import { writeFile as writeFile2, mkdir, readFile as readFile2 } from "fs/promises";
 
 // src/config.ts
 import os from "os";
 import { join } from "path";
-import { readFile } from "fs/promises";
-import { writeFileSync } from "fs";
 import pkg from "../package.json" assert { type: "json" };
+
+// src/utils.ts
+import { writeFileSync, readFileSync, accessSync, mkdirSync } from "fs";
+async function isExists(path, mode) {
+  return new Promise((resolve, reject) => {
+    try {
+      accessSync(path, mode);
+      resolve(true);
+    } catch (e) {
+      resolve(false);
+    }
+  });
+}
+function promisifyForSync(fn) {
+  return function promised(...args) {
+    return new Promise((resolve, reject) => {
+      try {
+        const data = fn(...args);
+        resolve(data);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  };
+}
+var writeFile = promisifyForSync(writeFileSync);
+var readFile = promisifyForSync(readFileSync);
+var mkdir = promisifyForSync(mkdirSync);
+
+// src/config.ts
 var { default: defaultConfig } = pkg.configuration;
 var Config = class {
   _configFile;
@@ -208,8 +235,7 @@ var Config = class {
   async _createConfigFile() {
     try {
       const json = JSON.stringify(defaultConfig, null, 4);
-      // writeFileSync(this._configFile, json, "utf8");
-      await writeFile2(this._configFile, json, 'utf8')
+      await writeFile(this._configFile, json, "utf8");
     } catch (e) {
       console.error(e);
     }
@@ -222,8 +248,8 @@ var Config = class {
   }
   async get() {
     try {
-      const content = await readFile(this._configFile, "utf8");
-      const config2 = JSON.parse(content);
+      const content = await readFile(this._configFile);
+      const config2 = JSON.parse(content.toString());
       if (config2.pmDirectory) {
         config2.pmDirectory = this._formatHomeDir(config2.pmDirectory);
       }
@@ -235,19 +261,8 @@ var Config = class {
 };
 var config = new Config();
 
-// src/utils.ts
-import { access } from "fs/promises";
-async function isExists(path, mode) {
-  try {
-    await access(path, mode);
-    return Promise.resolve(true);
-  } catch (e) {
-    return Promise.resolve(false);
-  }
-}
-
 // src/storage.ts
-var defaultAppDir = ".pm";
+var defaultAppDir = ".project-manager";
 var storageDir = "storage";
 var archiveDir = "archive";
 var storageFile = "storage.json";
@@ -315,14 +330,14 @@ var Storage = class {
   async save(list) {
     try {
       const json = JSON.stringify(list);
-      await writeFile2(this._storageFile, json);
+      await writeFile(this._storageFile, json);
     } catch (e) {
       return Promise.reject(e);
     }
   }
   async getList() {
     try {
-      const json = await readFile2(this._storageFile, "utf-8");
+      const json = await readFile(this._storageFile, "utf-8");
       return JSON.parse(json);
     } catch (e) {
       return Promise.reject(e);
@@ -330,7 +345,7 @@ var Storage = class {
   }
   async getArchive() {
     try {
-      const json = await readFile2(this._archiveFile, "utf8");
+      const json = await readFile(this._archiveFile, "utf8");
       return JSON.parse(json);
     } catch (e) {
       return Promise.reject(e);
@@ -339,7 +354,7 @@ var Storage = class {
   async saveArchive(list) {
     try {
       const json = JSON.stringify(list);
-      await writeFile2(this._archiveFile, json);
+      await writeFile(this._archiveFile, json);
     } catch (e) {
       return Promise.reject(e);
     }
