@@ -2,7 +2,7 @@ import os from 'os'
 import { join } from 'path'
 import pkg from '../package.json' assert { type: 'json' }
 import { PMConfig } from './types'
-import { writeFile, readFile } from './utils'
+import { writeFile, readFile, formatStringify } from './utils'
 
 const { default: defaultConfig } = pkg.configuration
 
@@ -16,7 +16,7 @@ class Config {
 
   private async _createConfigFile() {
     try {
-      const json = JSON.stringify(defaultConfig, null, 4)
+      const json = formatStringify(defaultConfig)
       await writeFile(this._configFile, json, 'utf8')
     } catch (e) {
       // TODO: render

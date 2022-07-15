@@ -34,3 +34,7 @@ export function promisifyForSync(fn: unPromiseFn): PrimisedFn {
 export const writeFile = promisifyForSync(writeFileSync)
 export const readFile = promisifyForSync(readFileSync)
 export const mkdir = promisifyForSync(mkdirSync)
+
+export function formatStringify(data: Record<string, unknown> | any[]): string {
+  return JSON.stringify(data, null, 4)
+}

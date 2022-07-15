@@ -2,7 +2,7 @@ import { join } from 'path'
 import os from 'os'
 import type { PM, PMStorage } from '@pm/core'
 import { config } from './config'
-import { isExists, writeFile, mkdir, readFile } from './utils'
+import { isExists, writeFile, mkdir, readFile, formatStringify } from './utils'
 
 const defaultAppDir = '.project-manager'
 const storageDir = 'storage'
@@ -34,7 +34,7 @@ class Storage implements PMStorage {
       this._storageFile = join(this._storagePath, storageFile)
       this._archiveFile = join(this._archivePath, archiveFile)
 
-      this._ensureDirectories()
+      await this._ensureDirectories()
     } catch (e) {
       // TODO: render
       console.error(e)
@@ -79,7 +79,7 @@ class Storage implements PMStorage {
     }
   }
 
-  private async _ensureDirectories() {
+  private async _ensureDirectories(): Promise<void> {
     await this._ensureMainAppDir()
     await this._ensureStorageDir()
     await this._ensureArchiveDir()
@@ -87,7 +87,7 @@ class Storage implements PMStorage {
 
   public async save(list: PM[]): Promise<void> {
     try {
-      const json = JSON.stringify(list)
+      const json = formatStringify(list)
       await writeFile(this._storageFile, json)
     } catch (e) {
       return Promise.reject(e)
@@ -96,9 +96,9 @@ class Storage implements PMStorage {
 
   public async getList(): Promise<PM[]> {
     try {
-      // if (!await isExists(this._storageFile)) {
-      //   return []
-      // }
+      if (!await isExists(this._storageFile)) {
+        return []
+      }
 
       const json = await readFile(this._storageFile, 'utf-8')
       return JSON.parse(json)
@@ -109,9 +109,9 @@ class Storage implements PMStorage {
 
   public async getArchive(): Promise<PM[]> {
     try {
-      // if (!await isExists(this._archiveFile)) {
-      //   return []
-      // }
+      if (!await isExists(this._archiveFile)) {
+        return []
+      }
 
       const json = await readFile(this._archiveFile, 'utf8')
       return JSON.parse(json)
@@ -122,7 +122,7 @@ class Storage implements PMStorage {
 
   public async saveArchive(list: PM[]): Promise<void> {
     try {
-      const json = JSON.stringify(list)
+      const json = formatStringify(list)
       await writeFile(this._archiveFile, json)
     } catch (e) {
       return Promise.reject(e)

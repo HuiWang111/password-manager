@@ -223,6 +223,9 @@ function promisifyForSync(fn) {
 var writeFile = promisifyForSync(writeFileSync);
 var readFile = promisifyForSync(readFileSync);
 var mkdir = promisifyForSync(mkdirSync);
+function formatStringify(data) {
+  return JSON.stringify(data, null, 4);
+}
 
 // src/config.ts
 var { default: defaultConfig } = pkg.configuration;
@@ -234,7 +237,7 @@ var Config = class {
   }
   async _createConfigFile() {
     try {
-      const json = JSON.stringify(defaultConfig, null, 4);
+      const json = formatStringify(defaultConfig);
       await writeFile(this._configFile, json, "utf8");
     } catch (e) {
       console.error(e);
@@ -287,7 +290,7 @@ var Storage = class {
       this._archivePath = join2(this._appPath, archiveDir);
       this._storageFile = join2(this._storagePath, storageFile);
       this._archiveFile = join2(this._archivePath, archiveFile);
-      this._ensureDirectories();
+      await this._ensureDirectories();
     } catch (e) {
       console.error(e);
     }
@@ -329,7 +332,7 @@ var Storage = class {
   }
   async save(list) {
     try {
-      const json = JSON.stringify(list);
+      const json = formatStringify(list);
       await writeFile(this._storageFile, json);
     } catch (e) {
       return Promise.reject(e);
@@ -337,6 +340,9 @@ var Storage = class {
   }
   async getList() {
     try {
+      if (!await isExists(this._storageFile)) {
+        return [];
+      }
       const json = await readFile(this._storageFile, "utf-8");
       return JSON.parse(json);
     } catch (e) {
@@ -345,6 +351,9 @@ var Storage = class {
   }
   async getArchive() {
     try {
+      if (!await isExists(this._archiveFile)) {
+        return [];
+      }
       const json = await readFile(this._archiveFile, "utf8");
       return JSON.parse(json);
     } catch (e) {
@@ -353,7 +362,7 @@ var Storage = class {
   }
   async saveArchive(list) {
     try {
-      const json = JSON.stringify(list);
+      const json = formatStringify(list);
       await writeFile(this._archiveFile, json);
     } catch (e) {
       return Promise.reject(e);
