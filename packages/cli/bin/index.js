@@ -48,8 +48,20 @@ var DEFAULT_BOARD = "My Board";
 // ../core/dist/PasswordManager.js
 var PasswordManager = class {
   _storage;
-  constructor(_storage) {
+  _encoder;
+  _decoder;
+  constructor(_storage, _encoder, _decoder) {
     this._storage = _storage;
+    this._encoder = _encoder;
+    this._decoder = _decoder;
+  }
+  _transform(pwd, isEncode = true) {
+    if (isEncode && this._encoder) {
+      return this._encoder(pwd);
+    } else if (!isEncode && this._decoder) {
+      return this._decoder(pwd);
+    }
+    return pwd;
   }
   _generateId(ls) {
     const list = ls ?? this._storage.getList();
@@ -79,11 +91,12 @@ var PasswordManager = class {
       throw new Error(`No ${key} was given as input`);
     }
   }
-  create(account, password, board) {
+  create(account, pwd, board) {
     board = board || DEFAULT_BOARD;
     this._validateEmpty(account, "account");
-    this._validateEmpty(password, "password");
+    this._validateEmpty(pwd, "password");
     const list = this._storage.getList();
+    const password = this._transform(pwd);
     this._storage.save([...list, {
       id: this._generateId(),
       account,
@@ -106,18 +119,28 @@ var PasswordManager = class {
   }
   get(id) {
     const list = this._validateIdAndGetList(id);
-    return list.find((item) => item.id === id);
+    const item = list.find((item2) => item2.id === id);
+    return {
+      ...item,
+      password: this._transform(item.password, false)
+    };
   }
   getList(ids) {
     if (ids) {
       return this._storage.getList().filter((item) => ids.includes(item.id));
     }
-    return this._storage.getList();
+    return this._storage.getList().map((item) => ({
+      ...item,
+      password: this._transform(item.password, false)
+    }));
   }
   find(keyword) {
     this._validateEmpty(keyword, "keyword");
     const list = this._storage.getList();
-    return list.filter((item) => item.account.includes(keyword));
+    return list.filter((item) => item.account.includes(keyword)).map((item) => ({
+      ...item,
+      password: this._transform(item.password, false)
+    }));
   }
   move(id, board) {
     if (!board) {
@@ -133,11 +156,15 @@ var PasswordManager = class {
     }));
   }
   getArchive() {
-    return this._storage.getArchive();
+    return this._storage.getArchive().map((item) => ({
+      ...item,
+      password: this._transform(item.password, false)
+    }));
   }
-  edit(id, password) {
+  edit(id, pwd) {
     const list = this._validateIdAndGetList(id);
-    this._validateEmpty(password, "password");
+    this._validateEmpty(pwd, "password");
+    const password = this._transform(pwd);
     this._storage.save(list.map((item) => {
       if (item.id === id) {
         item.password = password;
@@ -306,12 +333,21 @@ var Storage = class {
 var storage = new Storage();
 
 // src/pm.ts
+import CryptoJS from "crypto-js";
+var { AES, enc } = CryptoJS;
+var SECRET_KEY = "the secret key for password manager";
+function pwdEncoder(pwd) {
+  return AES.encrypt(pwd, SECRET_KEY).toString();
+}
+function pwdDecoder(pwd) {
+  return AES.decrypt(pwd, SECRET_KEY).toString(enc.Utf8);
+}
 var PM = class extends PasswordManager {
-  constructor(_storage) {
-    super(_storage);
+  constructor(storage2, encoder, decoder) {
+    super(storage2, encoder, decoder);
   }
 };
-var passwordManager = new PM(storage);
+var passwordManager = new PM(storage, pwdEncoder, pwdDecoder);
 
 // src/cli.ts
 function PMCli(input, flags) {
