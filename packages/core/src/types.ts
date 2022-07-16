@@ -6,8 +6,8 @@ export interface PM {
 }
 
 export interface PMStorage {
-  save: (list: PM[]) => Promise<void>;
-  getList: () => Promise<PM[]>;
-  getArchive: () => Promise<PM[]>;
-  saveArchive: (list: PM[]) => Promise<void>;
+  save: (list: PM[]) => void;
+  getList: () => PM[];
+  getArchive: () => PM[];
+  saveArchive: (list: PM[]) => void;
 }
