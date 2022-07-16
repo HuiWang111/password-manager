@@ -3,7 +3,7 @@
 // src/index.ts
 import meow from "meow";
 import updateNotifier from "update-notifier";
-import pkg2 from "../package.json" assert { type: "json" };
+import pkg3 from "../package.json" assert { type: "json" };
 
 // src/help.ts
 var help = `
@@ -39,6 +39,9 @@ var help = `
     $ pm --version
 `;
 
+// src/cli.ts
+import pkg2 from "../package.json" assert { type: "json" };
+
 // ../core/dist/contants.js
 var DEFAULT_BOARD = "My Board";
 
@@ -48,142 +51,112 @@ var PasswordManager = class {
   constructor(_storage) {
     this._storage = _storage;
   }
-  async _generateId(ls) {
-    const list = ls ?? await this._storage.getList();
+  _generateId(ls) {
+    const list = ls ?? this._storage.getList();
     const ids = list.map((item) => parseInt(item.id, 10));
     const max = ids.length > 0 ? Math.max.apply(null, ids) : 0;
     return String(max + 1);
   }
-  async _generateArchiveId(ls) {
-    const list = ls ?? await this._storage.getArchive();
+  _generateArchiveId(ls) {
+    const list = ls ?? this._storage.getArchive();
     const ids = list.map((item) => parseInt(item.id, 10));
     const max = ids.length > 0 ? Math.max.apply(null, ids) : 0;
     return String(max + 1);
   }
-  async _validateIdAndGetList(id, isArchive = false) {
-    try {
-      if (!id) {
-        return Promise.reject(new Error(`No id was given as input`));
+  _validateIdAndGetList(id, isArchive = false) {
+    if (!id) {
+      throw new Error(`No id was given as input`);
+    }
+    const list = isArchive ? this._storage.getArchive() : this._storage.getList();
+    if (!list.every((item) => item.id !== id)) {
+      throw new Error(`Unable to find item with id: ${id}`);
+    }
+    return list;
+  }
+  _validateEmpty(value, key) {
+    value = value.trim();
+    if (!value) {
+      throw new Error(`No ${key} was given as input`);
+    }
+  }
+  create(account, password, board) {
+    board = board || DEFAULT_BOARD;
+    this._validateEmpty(account, "account");
+    this._validateEmpty(password, "password");
+    const list = this._storage.getList();
+    this._storage.save([...list, {
+      id: this._generateId(),
+      account,
+      password,
+      board
+    }]);
+  }
+  delete(ids) {
+    if (!ids || !ids.length) {
+      throw new Error(`No id was given as input`);
+    }
+    const list = this._storage.getList();
+    const archiveList = this._storage.getArchive();
+    this._storage.save(list.filter((item) => !ids.includes(item.id)));
+    let id = Number(this._generateArchiveId(archiveList));
+    this._storage.saveArchive([
+      ...archiveList,
+      ...list.filter((item) => ids.includes(item.id)).map((item) => ({ ...item, id: String(id++) }))
+    ]);
+  }
+  get(id) {
+    const list = this._validateIdAndGetList(id);
+    return list.find((item) => item.id === id);
+  }
+  getList(ids) {
+    if (ids) {
+      return this._storage.getList().filter((item) => ids.includes(item.id));
+    }
+    return this._storage.getList();
+  }
+  find(keyword) {
+    this._validateEmpty(keyword, "keyword");
+    const list = this._storage.getList();
+    return list.filter((item) => item.account.includes(keyword));
+  }
+  move(id, board) {
+    if (!board) {
+      return;
+    }
+    const list = this._validateIdAndGetList(id);
+    this._validateEmpty(board, "board");
+    this._storage.save(list.map((item) => {
+      if (item.id === id) {
+        item.board = board;
       }
-      const list = isArchive ? await this._storage.getArchive() : await this._storage.getList();
-      if (!list.every((item) => item.id !== id)) {
-        return Promise.reject(new Error(`Unable to find item with id: ${id}`));
+      return item;
+    }));
+  }
+  getArchive() {
+    return this._storage.getArchive();
+  }
+  edit(id, password) {
+    const list = this._validateIdAndGetList(id);
+    this._validateEmpty(password, "password");
+    this._storage.save(list.map((item) => {
+      if (item.id === id) {
+        item.password = password;
       }
-      return Promise.resolve(list);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+      return item;
+    }));
   }
-  async _validateEmpty(value, key) {
-    return new Promise((resolve, reject) => {
-      value = value.trim();
-      if (!value) {
-        reject(new Error(`No ${key} was given as input`));
-      } else {
-        resolve();
-      }
-    });
-  }
-  async create(account, password, board) {
-    try {
-      board = board || DEFAULT_BOARD;
-      await this._validateEmpty(account, "account");
-      await this._validateEmpty(password, "password");
-      const list = await this._storage.getList();
-      await this._storage.save([...list, {
-        id: await this._generateId(),
-        account,
-        password,
-        board
-      }]);
-    } catch (e) {
-      return Promise.reject(e);
+  restore(ids) {
+    if (!ids || !ids.length) {
+      throw new Error(`No id was given as input`);
     }
-  }
-  async delete(id) {
-    try {
-      const list = await this._validateIdAndGetList(id);
-      const archiveList = await this._storage.getArchive();
-      await this._storage.save(list.filter((item) => item.id !== id));
-      await this._storage.saveArchive([...archiveList, {
-        ...list.find((item) => item.id === id),
-        id: await this._generateArchiveId(archiveList)
-      }]);
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-  async get(id) {
-    try {
-      const list = await this._validateIdAndGetList(id);
-      return list.find((item) => item.id === id);
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-  async getList() {
-    try {
-      return await this._storage.getList();
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-  async find(keyword) {
-    try {
-      await this._validateEmpty(keyword, "keyword");
-      const list = await this._storage.getList();
-      return list.filter((item) => item.account.includes(keyword));
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-  async move(id, board) {
-    try {
-      const list = await this._validateIdAndGetList(id);
-      await this._validateEmpty(board, "board");
-      await this._storage.save(list.map((item) => {
-        if (item.id === id) {
-          item.board = board;
-        }
-        return item;
-      }));
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-  async getArchive() {
-    try {
-      return await this._storage.getArchive();
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-  async edit(id, password) {
-    try {
-      const list = await this._validateIdAndGetList(id);
-      await this._validateEmpty(password, "password");
-      await this._storage.save(list.map((item) => {
-        if (item.id === id) {
-          item.password = password;
-        }
-        return item;
-      }));
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-  async restore(id) {
-    try {
-      const archiveList = await this._validateIdAndGetList(id, true);
-      const list = await this._storage.getList();
-      await this._storage.save([...list, {
-        ...archiveList.find((item) => item.id === id),
-        id: await this._generateId(list)
-      }]);
-      await this._storage.saveArchive(archiveList.filter((item) => item.id !== id));
-    } catch (e) {
-      return Promise.reject(e);
-    }
+    const archiveList = this._storage.getArchive();
+    const list = this._storage.getList();
+    let id = Number(this._generateId(list));
+    this._storage.save([
+      ...list,
+      ...archiveList.filter((item) => ids.includes(item.id)).map((item) => ({ ...item, id: String(id++) }))
+    ]);
+    this._storage.saveArchive(archiveList.filter((item) => !ids.includes(item.id)));
   }
 };
 
@@ -197,37 +170,21 @@ import { join } from "path";
 import pkg from "../package.json" assert { type: "json" };
 
 // src/utils.ts
-import { writeFileSync, readFileSync, accessSync, mkdirSync } from "fs";
-async function isExists(path, mode) {
-  return new Promise((resolve, reject) => {
-    try {
-      accessSync(path, mode);
-      resolve(true);
-    } catch (e) {
-      resolve(false);
-    }
-  });
+import { accessSync } from "fs";
+function isExists(path, mode) {
+  try {
+    accessSync(path, mode);
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
-function promisifyForSync(fn) {
-  return function promised(...args) {
-    return new Promise((resolve, reject) => {
-      try {
-        const data = fn(...args);
-        resolve(data);
-      } catch (e) {
-        reject(e);
-      }
-    });
-  };
-}
-var writeFile = promisifyForSync(writeFileSync);
-var readFile = promisifyForSync(readFileSync);
-var mkdir = promisifyForSync(mkdirSync);
 function formatStringify(data) {
   return JSON.stringify(data, null, 4);
 }
 
 // src/config.ts
+import { writeFileSync, readFileSync } from "fs";
 var { default: defaultConfig } = pkg.configuration;
 var Config = class {
   _configFile;
@@ -235,10 +192,10 @@ var Config = class {
     this._configFile = join(os.homedir(), ".project-manager.json");
     this._createConfigFile();
   }
-  async _createConfigFile() {
+  _createConfigFile() {
     try {
       const json = formatStringify(defaultConfig);
-      await writeFile(this._configFile, json, "utf8");
+      writeFileSync(this._configFile, json, "utf8");
     } catch (e) {
       console.error(e);
     }
@@ -249,22 +206,23 @@ var Config = class {
     }
     return join(os.homedir(), dir.replace(/^~/g, ""));
   }
-  async get() {
+  get() {
     try {
-      const content = await readFile(this._configFile);
+      const content = readFileSync(this._configFile);
       const config2 = JSON.parse(content.toString());
       if (config2.pmDirectory) {
         config2.pmDirectory = this._formatHomeDir(config2.pmDirectory);
       }
       return { ...defaultConfig, ...config2 };
     } catch (e) {
-      return Promise.reject(e);
+      throw e;
     }
   }
 };
 var config = new Config();
 
 // src/storage.ts
+import { writeFileSync as writeFileSync2, mkdirSync, readFileSync as readFileSync2 } from "fs";
 var defaultAppDir = ".project-manager";
 var storageDir = "storage";
 var archiveDir = "archive";
@@ -283,90 +241,66 @@ var Storage = class {
     this.getArchive = this.getArchive.bind(this);
     this._initialize();
   }
-  async _initialize() {
-    try {
-      this._appPath = await this._getAppPath();
-      this._storagePath = join2(this._appPath, storageDir);
-      this._archivePath = join2(this._appPath, archiveDir);
-      this._storageFile = join2(this._storagePath, storageFile);
-      this._archiveFile = join2(this._archivePath, archiveFile);
-      await this._ensureDirectories();
-    } catch (e) {
-      console.error(e);
+  _initialize() {
+    this._appPath = this._getAppPath();
+    this._storagePath = join2(this._appPath, storageDir);
+    this._archivePath = join2(this._appPath, archiveDir);
+    this._storageFile = join2(this._storagePath, storageFile);
+    this._archiveFile = join2(this._archivePath, archiveFile);
+    this._ensureDirectories();
+  }
+  _getAppPath() {
+    const { pmDirectory } = config.get();
+    const defaultAppPath = join2(os2.homedir(), defaultAppDir);
+    if (!pmDirectory) {
+      return defaultAppPath;
+    }
+    if (!isExists(pmDirectory)) {
+      process.exit(1);
+    }
+    return join2(pmDirectory, defaultAppDir);
+  }
+  _ensureMainAppDir() {
+    if (!isExists(this._appPath)) {
+      mkdirSync(this._appPath);
     }
   }
-  async _getAppPath() {
-    try {
-      const { pmDirectory } = await config.get();
-      const defaultAppPath = join2(os2.homedir(), defaultAppDir);
-      if (!pmDirectory) {
-        return defaultAppPath;
-      }
-      if (!await isExists(pmDirectory)) {
-        process.exit(1);
-      }
-      return join2(pmDirectory, defaultAppDir);
-    } catch (e) {
-      return Promise.reject(e);
+  _ensureStorageDir() {
+    if (!isExists(this._storagePath)) {
+      mkdirSync(this._storagePath);
     }
   }
-  async _ensureMainAppDir() {
-    if (!await isExists(this._appPath)) {
-      await mkdir(this._appPath);
+  _ensureArchiveDir() {
+    if (!isExists(this._archivePath)) {
+      mkdirSync(this._archivePath);
     }
   }
-  async _ensureStorageDir() {
-    if (!await isExists(this._storagePath)) {
-      await mkdir(this._storagePath);
-    }
+  _ensureDirectories() {
+    this._ensureMainAppDir();
+    this._ensureStorageDir();
+    this._ensureArchiveDir();
   }
-  async _ensureArchiveDir() {
-    if (!await isExists(this._archivePath)) {
-      await mkdir(this._archivePath);
-    }
+  save(list) {
+    const json = formatStringify(list);
+    writeFileSync2(this._storageFile, json);
   }
-  async _ensureDirectories() {
-    await this._ensureMainAppDir();
-    await this._ensureStorageDir();
-    await this._ensureArchiveDir();
-  }
-  async save(list) {
-    try {
-      const json = formatStringify(list);
-      await writeFile(this._storageFile, json);
-    } catch (e) {
-      return Promise.reject(e);
+  getList() {
+    if (!isExists(this._storageFile)) {
+      return [];
     }
+    const json = readFileSync2(this._storageFile, "utf-8");
+    return JSON.parse(json);
   }
-  async getList() {
-    try {
-      if (!await isExists(this._storageFile)) {
-        return [];
-      }
-      const json = await readFile(this._storageFile, "utf-8");
-      return JSON.parse(json);
-    } catch (e) {
-      return Promise.reject(e);
+  getArchive() {
+    if (!isExists(this._archiveFile)) {
+      return [];
     }
+    const json = readFileSync2(this._archiveFile, "utf8");
+    return JSON.parse(json);
   }
-  async getArchive() {
-    try {
-      if (!await isExists(this._archiveFile)) {
-        return [];
-      }
-      const json = await readFile(this._archiveFile, "utf8");
-      return JSON.parse(json);
-    } catch (e) {
-      return Promise.reject(e);
-    }
-  }
-  async saveArchive(list) {
-    try {
-      const json = formatStringify(list);
-      await writeFile(this._archiveFile, json);
-    } catch (e) {
-      return Promise.reject(e);
-    }
+  saveArchive(list) {
+    const json = formatStringify(list);
+    writeFileSync2(this._archiveFile, json);
   }
 };
 var storage = new Storage();
@@ -380,16 +314,48 @@ var PM = class extends PasswordManager {
 var passwordManager = new PM(storage);
 
 // src/cli.ts
-async function PMCli(input, flags) {
+function PMCli(input, flags) {
   if (flags.archive) {
-    return await passwordManager.getArchive();
+    return passwordManager.getArchive();
   }
   if (flags.create) {
     const board = input.find((i) => i.startsWith("@"))?.slice(1);
     const rest = input.filter((i) => !i.startsWith("@"));
-    return await passwordManager.create(rest[0], rest[1], board);
+    return passwordManager.create(rest[0], rest[1], board);
   }
-  return await passwordManager.getList();
+  if (flags.delete) {
+    return passwordManager.delete(input);
+  }
+  if (flags.copy) {
+    return;
+  }
+  if (flags.show) {
+    return passwordManager.getList(input);
+  }
+  if (flags.help) {
+    return console.info(help);
+  }
+  if (flags.find) {
+    return passwordManager.find(input[0]);
+  }
+  if (flags.move) {
+    const board = input.find((i) => i.startsWith("@"))?.slice(1);
+    const rest = input.filter((i) => !i.startsWith("@"));
+    return passwordManager.move(rest[0], board);
+  }
+  if (flags.archive) {
+    return passwordManager.getArchive();
+  }
+  if (flags.edit) {
+    return passwordManager.edit(input[0], input[1]);
+  }
+  if (flags.restore) {
+    return passwordManager.restore(input);
+  }
+  if (flags.version) {
+    return console.info(pkg2.version);
+  }
+  return passwordManager.getList();
 }
 
 // src/index.ts
@@ -442,8 +408,8 @@ var result = meow(help, {
     }
   }
 });
-updateNotifier({ pkg: pkg2 }).notify();
-(async function() {
-  const res = await PMCli(result.input, result.flags);
+updateNotifier({ pkg: pkg3 }).notify();
+(function() {
+  const res = PMCli(result.input, result.flags);
   console.log(res);
 })();

@@ -59,8 +59,8 @@ const result = meow<PMFlags>(help, {
 
 updateNotifier({ pkg }).notify();
 
-(async function () {
-  const res = await PMCli(result.input, result.flags)
+(function () {
+  const res = PMCli(result.input, result.flags)
   console.log(res)
 })()
 

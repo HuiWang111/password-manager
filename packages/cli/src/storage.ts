@@ -2,7 +2,8 @@ import { join } from 'path'
 import os from 'os'
 import type { PM, PMStorage } from '@pm/core'
 import { config } from './config'
-import { isExists, writeFile, mkdir, readFile, formatStringify } from './utils'
+import { isExists, formatStringify } from './utils'
+import { writeFileSync, mkdirSync, readFileSync } from 'fs'
 
 const defaultAppDir = '.project-manager'
 const storageDir = 'storage'
@@ -26,107 +27,82 @@ class Storage implements PMStorage {
     this._initialize()
   }
 
-  private async _initialize(): Promise<void> {
-    try {
-      this._appPath = await this._getAppPath()
-      this._storagePath = join(this._appPath, storageDir)
-      this._archivePath = join(this._appPath, archiveDir)
-      this._storageFile = join(this._storagePath, storageFile)
-      this._archiveFile = join(this._archivePath, archiveFile)
+  private _initialize(): void {
+    this._appPath = this._getAppPath()
+    this._storagePath = join(this._appPath, storageDir)
+    this._archivePath = join(this._appPath, archiveDir)
+    this._storageFile = join(this._storagePath, storageFile)
+    this._archiveFile = join(this._archivePath, archiveFile)
 
-      await this._ensureDirectories()
-    } catch (e) {
-      // TODO: render
-      console.error(e)
+    this._ensureDirectories()
+  }
+
+  private _getAppPath(): string {
+    const { pmDirectory } = config.get()
+    const defaultAppPath = join(os.homedir(), defaultAppDir)
+
+    if (!pmDirectory) {
+      return defaultAppPath
+    }
+
+    if (!isExists(pmDirectory)) {
+      // TODO: render.invalidCustomAppDir(pmDirectory)
+      process.exit(1)
+    }
+
+    return join(pmDirectory, defaultAppDir)
+  }
+
+  private _ensureMainAppDir(): void {
+    if (!isExists(this._appPath)) {
+      mkdirSync(this._appPath)
     }
   }
 
-  private async _getAppPath(): Promise<string> {
-    try {
-      const { pmDirectory } = await config.get()
-      const defaultAppPath = join(os.homedir(), defaultAppDir)
-
-      if (!pmDirectory) {
-        return defaultAppPath
-      }
-
-      if (!await isExists(pmDirectory)) {
-        // TODO: render.invalidCustomAppDir(pmDirectory)
-        process.exit(1)
-      }
-
-      return join(pmDirectory, defaultAppDir)
-    } catch (e) {
-      return Promise.reject(e)
+  private _ensureStorageDir(): void {
+    if (!isExists(this._storagePath)) {
+      mkdirSync(this._storagePath)
     }
   }
 
-  private async _ensureMainAppDir(): Promise<void> {
-    if (!await isExists(this._appPath)) {
-      await mkdir(this._appPath)
+  private _ensureArchiveDir(): void {
+    if (!isExists(this._archivePath)) {
+      mkdirSync(this._archivePath)
     }
   }
 
-  private async _ensureStorageDir(): Promise<void> {
-    if (!await isExists(this._storagePath)) {
-      await mkdir(this._storagePath)
-    }
+  private _ensureDirectories(): void {
+    this._ensureMainAppDir()
+    this._ensureStorageDir()
+    this._ensureArchiveDir()
   }
 
-  private async _ensureArchiveDir(): Promise<void> {
-    if (!await isExists(this._archivePath)) {
-      await mkdir(this._archivePath)
-    }
+  public save(list: PM[]): void {
+    const json = formatStringify(list)
+    writeFileSync(this._storageFile, json)
   }
 
-  private async _ensureDirectories(): Promise<void> {
-    await this._ensureMainAppDir()
-    await this._ensureStorageDir()
-    await this._ensureArchiveDir()
+  public getList(): PM[] {
+    if (!isExists(this._storageFile)) {
+      return []
+    }
+
+    const json = readFileSync(this._storageFile, 'utf-8')
+    return JSON.parse(json)
   }
 
-  public async save(list: PM[]): Promise<void> {
-    try {
-      const json = formatStringify(list)
-      await writeFile(this._storageFile, json)
-    } catch (e) {
-      return Promise.reject(e)
+  public getArchive(): PM[] {
+    if (!isExists(this._archiveFile)) {
+      return []
     }
+
+    const json = readFileSync(this._archiveFile, 'utf8')
+    return JSON.parse(json)
   }
 
-  public async getList(): Promise<PM[]> {
-    try {
-      if (!await isExists(this._storageFile)) {
-        return []
-      }
-
-      const json = await readFile(this._storageFile, 'utf-8')
-      return JSON.parse(json)
-    } catch (e) {
-      return Promise.reject(e)
-    }
-  }
-
-  public async getArchive(): Promise<PM[]> {
-    try {
-      if (!await isExists(this._archiveFile)) {
-        return []
-      }
-
-      const json = await readFile(this._archiveFile, 'utf8')
-      return JSON.parse(json)
-    } catch (e) {
-      return Promise.reject(e)
-    }
-  }
-
-  public async saveArchive(list: PM[]): Promise<void> {
-    try {
-      const json = formatStringify(list)
-      await writeFile(this._archiveFile, json)
-    } catch (e) {
-      return Promise.reject(e)
-    }
+  public saveArchive(list: PM[]): void {
+    const json = formatStringify(list)
+    writeFileSync(this._archiveFile, json)
   }
 }
 

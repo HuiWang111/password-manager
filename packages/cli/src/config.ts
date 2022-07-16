@@ -2,7 +2,8 @@ import os from 'os'
 import { join } from 'path'
 import pkg from '../package.json' assert { type: 'json' }
 import { PMConfig } from './types'
-import { writeFile, readFile, formatStringify } from './utils'
+import { formatStringify } from './utils'
+import { writeFileSync, readFileSync } from 'fs'
 
 const { default: defaultConfig } = pkg.configuration
 
@@ -14,10 +15,10 @@ class Config {
     this._createConfigFile()
   }
 
-  private async _createConfigFile() {
+  private _createConfigFile() {
     try {
       const json = formatStringify(defaultConfig)
-      await writeFile(this._configFile, json, 'utf8')
+      writeFileSync(this._configFile, json, 'utf8')
     } catch (e) {
       // TODO: render
       console.error(e)
@@ -32,9 +33,9 @@ class Config {
     return join(os.homedir(), dir.replace(/^~/g, ''))
   }
 
-  public async get(): Promise<PMConfig> {
+  public get(): PMConfig {
     try {
-      const content = await readFile(this._configFile)
+      const content = readFileSync(this._configFile)
       const config: PMConfig = JSON.parse(content.toString())
 
       if (config.pmDirectory) {
@@ -43,7 +44,7 @@ class Config {
 
       return { ...defaultConfig, ...config }
     } catch (e) {
-      return Promise.reject(e)
+      throw e
     }
   }
 }

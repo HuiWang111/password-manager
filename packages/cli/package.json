@@ -5,8 +5,9 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "node --experimental-json-modules scripts/build.mjs",
-    "pm": "node --experimental-json-modules bin/index.js"
+    "build": "node --experimental-json-modules scripts/build.js",
+    "pm": "node --experimental-json-modules bin/index.js",
+    "dev": "node scripts/watch.js"
   },
   "bin": {
     "pm": "./bin/index.js"
@@ -19,6 +20,8 @@
   },
   "dependencies": {
     "@pm/core": "*",
+    "@types/crypto-js": "^4.1.1",
+    "crypto-js": "^4.1.1",
     "meow": "^10.1.3",
     "update-notifier": "^6.0.2"
   },
