@@ -1,6 +1,6 @@
 {
   "name": "@pm/cli",
-  "version": "1.0.0",
+  "version": "0.0.9",
   "author": "kennys_wang <kennys_wang@163.com>",
   "license": "MIT",
   "type": "module",
