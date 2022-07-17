@@ -1,6 +1,6 @@
 {
   "name": "@pm/cli",
-  "version": "0.0.9",
+  "version": "1.0.0-alpha.0",
   "author": "kennys_wang <kennys_wang@163.com>",
   "license": "MIT",
   "type": "module",
@@ -19,7 +19,7 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@pm/core": "*",
+    "@pm/core": "^1.0.0-alpha.0",
     "@types/crypto-js": "^4.1.1",
     "clipboardy": "^3.0.0",
     "console-grid": "^1.0.17",
