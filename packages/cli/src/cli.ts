@@ -12,7 +12,8 @@ export function PMCli(input: string[], flags: TypedFlags<PMFlags> & Record<strin
   if (flags.create) {
     const board = input.find(i => i.startsWith('@'))?.slice(1)
     const rest = input.filter(i => !i.startsWith('@'))
-    return passwordManager.create(rest[0], rest[1], board)
+    // TODO: 目前创建账号的时候board仅支持一个单词，如果需要多个单词可以创建后使用move命令
+    return passwordManager.create(rest[0], rest[1], board, rest.slice(2).join(' '))
   }
   
   if (flags.delete) {
@@ -29,7 +30,7 @@ export function PMCli(input: string[], flags: TypedFlags<PMFlags> & Record<strin
   }
 
   if (flags.remark) {
-    return passwordManager.remark(input[0], input[1])
+    return passwordManager.remark(input[0], input.slice(1).join(' '))
   }
 
   if (flags.help) {
@@ -41,9 +42,9 @@ export function PMCli(input: string[], flags: TypedFlags<PMFlags> & Record<strin
   }
 
   if (flags.move) {
-    const board = input.find(i => i.startsWith('@'))?.slice(1)
+    const id = input.find(i => i.startsWith('@'))?.slice(1)
     const rest = input.filter(i => !i.startsWith('@'))
-    return passwordManager.move(rest[0], board)
+    return passwordManager.move(id || '', rest.slice(1).join(' '))
   }
 
   if (flags.archive) {

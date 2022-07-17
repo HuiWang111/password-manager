@@ -5,7 +5,7 @@ import { config } from './config'
 import { isExists, formatStringify } from './utils'
 import { writeFileSync, mkdirSync, readFileSync } from 'fs'
 
-const defaultAppDir = '.project-manager'
+const defaultAppDir = '.password-manager'
 const storageDir = 'storage'
 const archiveDir = 'archive'
 const storageFile = 'storage.json'

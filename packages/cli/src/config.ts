@@ -11,7 +11,7 @@ class Config {
   private _configFile: string
 
   constructor() {
-    this._configFile = join(os.homedir(), '.project-manager.json')
+    this._configFile = join(os.homedir(), '.password-manager.json')
     this._createConfigFile()
   }
 
