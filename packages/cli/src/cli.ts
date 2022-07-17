@@ -3,6 +3,7 @@ import pkg from '../package.json' assert { type: 'json' };
 import { PMFlags } from './types'
 import { passwordManager } from './pm'
 import { help } from './help'
+import { renderGrid } from './utils'
 
 export function PMCli(input: string[], flags: TypedFlags<PMFlags> & Record<string, unknown>): any {
   if (flags.archive) {
@@ -44,7 +45,7 @@ export function PMCli(input: string[], flags: TypedFlags<PMFlags> & Record<strin
   if (flags.move) {
     const id = input.find(i => i.startsWith('@'))?.slice(1)
     const rest = input.filter(i => !i.startsWith('@'))
-    return passwordManager.move(id || '', rest.slice(1).join(' '))
+    return passwordManager.move(id || '', rest.join(' '))
   }
 
   if (flags.archive) {
@@ -63,5 +64,6 @@ export function PMCli(input: string[], flags: TypedFlags<PMFlags> & Record<strin
     return console.info(pkg.version)
   }
 
-  return passwordManager.getList()
+  const list = passwordManager.getList()
+  return renderGrid(list)
 }

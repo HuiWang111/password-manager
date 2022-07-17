@@ -1,6 +1,8 @@
 import { PM, PMStorage } from './types'
 import { DEFAULT_BOARD } from './contants'
 
+const defaultMask = '******'
+
 export class PasswordManager<T extends PMStorage = PMStorage> {
   constructor(
     private _storage: T,
@@ -98,37 +100,41 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     ])
   }
 
-  public get(id: string): PM {
+  public get(id: string, mask = defaultMask): PM {
     const list = this._validateIdAndGetList(id)
     const item = list.find(item => item.id === id)!
     return {
       ...item,
-      password: this._transform(item.password, false)
+      password: mask || this._transform(item.password, false)
     }
   }
 
-  public getList(ids?: string[]): PM[] {
+  public getList(ids?: string[], mask = defaultMask): PM[] {
     if (ids) {
       return this._storage.getList()
         .filter(item => ids.includes(item.id))
+        .map(item => ({
+          ...item,
+          password: mask || this._transform(item.password, false)
+        }))
     }
 
     return this._storage
       .getList()
       .map(item => ({
         ...item,
-        password: this._transform(item.password, false) 
+        password: mask || this._transform(item.password, false) 
       }))
   }
 
-  public find(keyword: string): PM[] {
+  public find(keyword: string, mask = defaultMask): PM[] {
     this._validateEmpty(keyword, 'keyword')
     const list = this._storage.getList()
     return list
       .filter(item => item.account.includes(keyword))
       .map(item => ({
         ...item,
-        password: this._transform(item.password, false) 
+        password: mask || this._transform(item.password, false) 
       }))
   }
 
@@ -148,12 +154,12 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     }))
   }
 
-  public getArchive(): PM[] {
+  public getArchive(mask = defaultMask): PM[] {
     return this._storage
       .getArchive()
       .map(item => ({
         ...item,
-        password: this._transform(item.password, false) 
+        password: mask || this._transform(item.password, false) 
       }))
   }
 
