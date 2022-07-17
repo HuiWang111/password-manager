@@ -29,5 +29,10 @@
     "default": {
       "pmDirectory": "~"
     }
-  }
+  },
+  "files": [
+    "bin",
+    "package.json",
+    "README.md"
+  ]
 }

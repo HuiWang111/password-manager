@@ -28,6 +28,10 @@ export function PMCli(input: string[], flags: TypedFlags<PMFlags> & Record<strin
     return passwordManager.getList(input)
   }
 
+  if (flags.remark) {
+    return passwordManager.remark(input[0], input[1])
+  }
+
   if (flags.help) {
     return console.info(help)
   }

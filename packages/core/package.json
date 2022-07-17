@@ -12,5 +12,10 @@
   },
   "scripts": {
     "build": "tsc"
-  }
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "README.md"
+  ]
 }

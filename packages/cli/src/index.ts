@@ -22,6 +22,10 @@ const result = meow<PMFlags>(help, {
       type: 'boolean',
       alias: 'y'
     },
+    remark: {
+      type: 'boolean',
+      alias: 'k'
+    },
     show: {
       type: 'boolean',
       alias: 's'

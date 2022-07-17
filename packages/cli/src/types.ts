@@ -9,6 +9,7 @@ export interface PMFlags extends AnyFlags {
   delete: BooleanFlag;
   copy: BooleanFlag;
   show: BooleanFlag;
+  remark: BooleanFlag;
   help: BooleanFlag;
   find: BooleanFlag;
   move: BooleanFlag;

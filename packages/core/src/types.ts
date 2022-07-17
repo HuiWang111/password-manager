@@ -3,6 +3,7 @@ export interface PM {
   account: string;
   password: string;
   board: string;
+  remark: string;
 }
 
 export interface PMStorage {

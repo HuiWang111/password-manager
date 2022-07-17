@@ -41,8 +41,8 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     const list = isArchive
       ? this._storage.getArchive()
       : this._storage.getList()
-
-    if (!list.every(item => item.id !== id)) {
+    
+    if (list.every(item => item.id !== id)) {
       throw new Error(`Unable to find item with id: ${id}`)
     }
 
@@ -60,9 +60,11 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
   public create(
     account: string,
     pwd: string,
-    board?: string
+    board?: string,
+    remark?: string
   ): void {
     board = board || DEFAULT_BOARD
+    remark = remark || ''
 
     this._validateEmpty(account, 'account')
     this._validateEmpty(pwd, 'password')
@@ -73,7 +75,8 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
       id: this._generateId(),
       account,
       password,
-      board
+      board,
+      remark
     }])
   }
 
@@ -183,5 +186,20 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
         .map(item => ({ ...item, id: String(id++) }))
     ])
     this._storage.saveArchive(archiveList.filter(item => !ids.includes(item.id)))
+  }
+
+  public remark(id: string, remark: string): void {
+    const list = this._validateIdAndGetList(id)
+    this._validateEmpty(remark, 'remark')
+
+    this._storage.save(list.map(item => {
+      if (item.id === id) {
+        return {
+          ...item,
+          remark
+        }
+      }
+      return { ...item }
+    }))
   }
 }
