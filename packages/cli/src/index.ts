@@ -1,4 +1,4 @@
-#!/usr/bin/env node --experimental-json-modules
+#!/usr/bin/env node --experimental-json-modules --experimental-specifier-resolution=node
 
 import meow from 'meow'
 import updateNotifier from 'update-notifier';
@@ -57,6 +57,10 @@ const result = meow<PMFlags>(help, {
     version: {
       type: 'boolean',
       alias: 'v'
+    },
+    clean: {
+      type: 'boolean',
+      alias: 'n'
     }
   }
 })
