@@ -16,6 +16,7 @@ export const help = `
     --edit, -e         Edit account password
     --restore, -r      Restore accounts from archive
     --version, -v      Display installed version
+    --clean, -n        clear all archived accounts
 
   Example
     $ pm
@@ -31,4 +32,5 @@ export const help = `
     $ pm --edit @1 67890
     $ pm --restore 4
     $ pm --version
+    $ pm --clean
 `

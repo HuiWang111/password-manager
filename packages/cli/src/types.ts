@@ -17,4 +17,5 @@ export interface PMFlags extends AnyFlags {
   edit: BooleanFlag;
   restore: BooleanFlag;
   version: BooleanFlag;
+  clean: BooleanFlag;
 }

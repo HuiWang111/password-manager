@@ -131,7 +131,7 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     this._validateEmpty(keyword, 'keyword')
     const list = this._storage.getList()
     return list
-      .filter(item => item.account.includes(keyword))
+      .filter(item => item.account.includes(keyword) || item.remark.includes(keyword))
       .map(item => ({
         ...item,
         password: mask || this._transform(item.password, false) 
@@ -208,4 +208,8 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
       return { ...item }
     }))
   }
-}
+
+  public clean(): void {
+    this._storage.saveArchive([])
+  }
+ }

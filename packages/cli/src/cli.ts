@@ -4,12 +4,9 @@ import { PMFlags } from './types'
 import { passwordManager } from './pm'
 import { help } from './help'
 import { renderGrid } from './utils'
+import clipboard from 'clipboardy'
 
 export function PMCli(input: string[], flags: TypedFlags<PMFlags> & Record<string, unknown>): any {
-  if (flags.archive) {
-    return passwordManager.getArchive()
-  }
-
   if (flags.create) {
     const board = input.find(i => i.startsWith('@'))?.slice(1)
     const rest = input.filter(i => !i.startsWith('@'))
@@ -22,12 +19,14 @@ export function PMCli(input: string[], flags: TypedFlags<PMFlags> & Record<strin
   }
 
   if (flags.copy) {
-    // TODO: 
-    return
+    const item = passwordManager.get(input[0], '')
+    clipboard.writeSync(item.password)
+    return console.info(`Successful copy password of account: ${item.id}`)
   }
 
   if (flags.show) {
-    return passwordManager.getList(input)
+    const list = passwordManager.getList(input, '')
+    return renderGrid(list)
   }
 
   if (flags.remark) {
@@ -39,7 +38,8 @@ export function PMCli(input: string[], flags: TypedFlags<PMFlags> & Record<strin
   }
 
   if (flags.find) {
-    return passwordManager.find(input[0])
+    const list = passwordManager.find(input[0])
+    return renderGrid(list)
   }
 
   if (flags.move) {
@@ -47,9 +47,10 @@ export function PMCli(input: string[], flags: TypedFlags<PMFlags> & Record<strin
     const rest = input.filter(i => !i.startsWith('@'))
     return passwordManager.move(id || '', rest.join(' '))
   }
-
+  
   if (flags.archive) {
-    return passwordManager.getArchive()
+    const archiveList = passwordManager.getArchive()
+    return renderGrid(archiveList)
   }
 
   if (flags.edit) {
@@ -62,6 +63,10 @@ export function PMCli(input: string[], flags: TypedFlags<PMFlags> & Record<strin
 
   if (flags.version) {
     return console.info(pkg.version)
+  }
+
+  if (flags.clean) {
+    return passwordManager.clean()
   }
 
   const list = passwordManager.getList()

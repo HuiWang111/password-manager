@@ -39,7 +39,7 @@ export function renderGrid(rows: PM[]): void {
   const grid = new ConsoleGrid()
   // @ts-ignore
   const grouped = groupBy(rows, 'board')
-
+  
   for (const key in grouped) {
     console.info(`@${key} (${grouped[key].length})`)
     const data = {
