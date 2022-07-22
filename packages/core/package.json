@@ -13,6 +13,9 @@
   "scripts": {
     "build": "tsc"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "dist",
     "package.json",
