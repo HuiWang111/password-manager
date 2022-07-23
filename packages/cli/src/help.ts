@@ -8,7 +8,7 @@ export const help = `
     --delete, -d       Delete some accounts
     --copy, -y         Copy password of an account
     --show, -s         Display account list
-    --remark, -k      Add remark to an account
+    --remark, -k       Add remark to an account
     --help, -h         Display help message
     --find, -f         Search for accounts
     --move, -m         Move account between boards
