@@ -1,31 +1,14 @@
 import { PasswordManager } from '@kennys_wang/pm-core'
-import type { PMStorage } from '@kennys_wang/pm-core'
-import { storage } from './storage'
-import CryptoJS from 'crypto-js'
+import type { PMConfig } from './types'
+import { Storage } from './storage'
 
-const { AES, enc } = CryptoJS
-const SECRET_KEY = 'the secret key for password manager'
-
-function pwdEncoder(pwd: string): string {
-  return AES
-    .encrypt(pwd, SECRET_KEY)
-    .toString()
-}
-
-function pwdDecoder(pwd: string): string {
-  return AES
-    .decrypt(pwd, SECRET_KEY)
-    .toString(enc.Utf8)
-}
-
-class PM extends PasswordManager {
+export class PM extends PasswordManager {
   constructor(
-    storage: PMStorage,
+    defaultConfig: PMConfig,
     encoder?: ((pwd: string) => string),
     decoder?: ((pwd: string) => string)
   ) {
+    const storage = new Storage(defaultConfig)
     super(storage, encoder, decoder)
   }
 }
-
-export const passwordManager = new PM(storage, pwdEncoder, pwdDecoder)

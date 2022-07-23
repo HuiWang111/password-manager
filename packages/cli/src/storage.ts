@@ -1,8 +1,9 @@
 import { join } from 'path'
 import os from 'os'
 import type { PM, PMStorage } from '@kennys_wang/pm-core'
-import { config } from './config'
+import { Config } from './config'
 import { isExists, formatStringify } from './utils'
+import type { PMConfig } from './types'
 import { writeFileSync, mkdirSync, readFileSync } from 'fs'
 
 const defaultAppDir = '.password-manager'
@@ -11,14 +12,17 @@ const archiveDir = 'archive'
 const storageFile = 'storage.json'
 const archiveFile = 'archive.json'
 
-class Storage implements PMStorage {
+export class Storage implements PMStorage {
   private _appPath: string
   private _storagePath: string
   private _archivePath: string
   private _storageFile: string
   private _archiveFile: string
+  private _config: Config
 
-  constructor() {
+  constructor(defaultConfig: PMConfig) {
+    this._config = new Config(defaultConfig)
+
     this.save = this.save.bind(this)
     this.saveArchive = this.saveArchive.bind(this)
     this.getList = this.getList.bind(this)
@@ -38,7 +42,7 @@ class Storage implements PMStorage {
   }
 
   private _getAppPath(): string {
-    const { pmDirectory } = config.get()
+    const { pmDirectory } = this._config.get()
     const defaultAppPath = join(os.homedir(), defaultAppDir)
 
     if (!pmDirectory) {
@@ -105,5 +109,3 @@ class Storage implements PMStorage {
     writeFileSync(this._archiveFile, json)
   }
 }
-
-export const storage = new Storage()

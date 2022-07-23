@@ -1,8 +1,10 @@
-#!/usr/bin/env node --experimental-json-modules --experimental-specifier-resolution=node
+#!/usr/bin/env node --experimental-specifier-resolution=node
 
 import meow from 'meow'
 import updateNotifier from 'update-notifier';
-import pkg from '../package.json' assert { type: 'json' };
+import { readFileSync } from 'fs'
+import { fileURLToPath } from 'url'
+import { join, dirname } from 'path'
 import { help } from './help'
 import { PMFlags } from './types'
 import { PMCli } from './cli'
@@ -65,10 +67,16 @@ const result = meow<PMFlags>(help, {
   }
 })
 
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const pkg = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf8'))
+
 updateNotifier({ pkg }).notify();
 
 (function () {
-  const res = PMCli(result.input, result.flags)
-  console.log(res)
+  PMCli(
+    result.input,
+    result.flags,
+    pkg.version,
+    pkg.configuration)
 })()
 

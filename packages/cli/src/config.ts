@@ -1,23 +1,21 @@
 import os from 'os'
 import { join } from 'path'
-import pkg from '../package.json' assert { type: 'json' }
 import { PMConfig } from './types'
 import { formatStringify } from './utils'
 import { writeFileSync, readFileSync } from 'fs'
 
-const { default: defaultConfig } = pkg.configuration
-
-class Config {
+export class Config {
   private _configFile: string
 
-  constructor() {
+  constructor(private _defaultConfig: PMConfig) {
     this._configFile = join(os.homedir(), '.password-manager.json')
     this._createConfigFile()
   }
 
   private _createConfigFile() {
     try {
-      const json = formatStringify(defaultConfig)
+      type t = typeof this._defaultConfig
+      const json = formatStringify(this._defaultConfig)
       writeFileSync(this._configFile, json, 'utf8')
     } catch (e) {
       // TODO: render
@@ -42,11 +40,9 @@ class Config {
         config.pmDirectory = this._formatHomeDir(config.pmDirectory)
       }
 
-      return { ...defaultConfig, ...config }
+      return { ...this._defaultConfig, ...config }
     } catch (e) {
       throw e
     }
   }
 }
-
-export const config = new Config()

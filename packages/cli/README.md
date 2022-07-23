@@ -1,4 +1,4 @@
-# @pm/cli
+# @kennys_wang/pm-cli
 密码管理命令行工具
 
 ## Install

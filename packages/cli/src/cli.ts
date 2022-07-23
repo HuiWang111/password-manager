@@ -1,12 +1,33 @@
 import type { TypedFlags } from 'meow'
-import pkg from '../package.json' assert { type: 'json' };
-import { PMFlags } from './types'
-import { passwordManager } from './pm'
+import type { PMFlags, PMConfig } from './types'
+import { PM } from './pm'
 import { help } from './help'
 import { renderGrid } from './utils'
 import clipboard from 'clipboardy'
+import CryptoJS from 'crypto-js'
 
-export function PMCli(input: string[], flags: TypedFlags<PMFlags> & Record<string, unknown>): any {
+const { AES, enc } = CryptoJS
+const SECRET_KEY = 'the secret key for password manager'
+
+function pwdEncoder(pwd: string): string {
+  return AES
+    .encrypt(pwd, SECRET_KEY)
+    .toString()
+}
+
+function pwdDecoder(pwd: string): string {
+  return AES
+    .decrypt(pwd, SECRET_KEY)
+    .toString(enc.Utf8)
+}
+
+export function PMCli(
+    input: string[],
+    flags: TypedFlags<PMFlags> & Record<string, unknown>,
+    version: string,
+    defaultConfig: PMConfig): any {
+  const passwordManager = new PM(defaultConfig, pwdEncoder, pwdDecoder)
+
   if (flags.create) {
     const board = input.find(i => i.startsWith('@'))?.slice(1)
     const rest = input.filter(i => !i.startsWith('@'))
@@ -62,7 +83,7 @@ export function PMCli(input: string[], flags: TypedFlags<PMFlags> & Record<strin
   }
 
   if (flags.version) {
-    return console.info(pkg.version)
+    return console.info(version)
   }
 
   if (flags.clean) {

@@ -12,7 +12,7 @@ export function isExists(path: PathLike, mode?: number): boolean {
   }
 }
 
-export function formatStringify(data: Record<string, unknown> | any[]): string {
+export function formatStringify(data: Record<string, any> | any[]): string {
   return JSON.stringify(data, null, 4)
 }
 

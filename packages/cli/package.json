@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "node --experimental-json-modules scripts/build.js",
-    "pm": "node --experimental-json-modules --experimental-specifier-resolution=node bin/index.js",
+    "pm": "node --experimental-specifier-resolution=node bin/index.js",
     "dev": "node scripts/watch.js"
   },
   "bin": {
