@@ -1,8 +1,8 @@
 import os from 'os'
 import { join } from 'path'
-import { PMConfig } from './types'
-import { formatStringify } from './utils'
 import { writeFileSync, readFileSync } from 'fs'
+import { PMConfig } from './types'
+import { formatStringify, isExists } from './utils'
 
 export class Config {
   private _configFile: string
@@ -13,13 +13,9 @@ export class Config {
   }
 
   private _createConfigFile() {
-    try {
-      type t = typeof this._defaultConfig
+    if (!isExists(this._configFile)) {
       const json = formatStringify(this._defaultConfig)
       writeFileSync(this._configFile, json, 'utf8')
-    } catch (e) {
-      // TODO: render
-      console.error(e)
     }
   }
 
@@ -32,17 +28,13 @@ export class Config {
   }
 
   public get(): PMConfig {
-    try {
-      const content = readFileSync(this._configFile)
-      const config: PMConfig = JSON.parse(content.toString())
+    const content = readFileSync(this._configFile, 'utf8')
+    const config: PMConfig = JSON.parse(content.toString()).default
 
-      if (config.pmDirectory) {
-        config.pmDirectory = this._formatHomeDir(config.pmDirectory)
-      }
-
-      return { ...this._defaultConfig, ...config }
-    } catch (e) {
-      throw e
+    if (config.pmDirectory) {
+      config.pmDirectory = this._formatHomeDir(config.pmDirectory)
     }
+
+    return { ...this._defaultConfig, ...config }
   }
 }

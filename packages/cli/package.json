@@ -12,19 +12,30 @@
   "bin": {
     "pm": "./bin/index.js"
   },
+  "repository": {
+    "url": "https://github.com/HuiWang111/password-manager/tree/main/packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/HuiWang111/password-manager/issues"
+  },
   "devDependencies": {
+    "@types/crypto-js": "^4.1.1",
+    "@types/figlet": "^1.5.4",
     "@types/node": "^18.0.3",
+    "@types/signale": "^1.4.4",
     "@types/update-notifier": "^6.0.1",
     "esbuild": "^0.14.48",
     "typescript": "^4.7.4"
   },
   "dependencies": {
     "@kennys_wang/pm-core": "^1.0.1-alpha.0",
-    "@types/crypto-js": "^4.1.1",
     "clipboardy": "^3.0.0",
     "console-grid": "^1.0.17",
     "crypto-js": "^4.1.1",
+    "figlet": "^1.5.2",
     "meow": "^10.1.3",
+    "picocolors": "^1.0.0",
+    "signale": "^1.4.0",
     "update-notifier": "^6.0.2"
   },
   "configuration": {

@@ -19,3 +19,7 @@ export interface PMFlags extends AnyFlags {
   version: BooleanFlag;
   clean: BooleanFlag;
 }
+
+export interface RenderGridOptions {
+  beforeWarning?: string
+}

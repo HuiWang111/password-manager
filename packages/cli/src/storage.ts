@@ -5,6 +5,7 @@ import { Config } from './config'
 import { isExists, formatStringify } from './utils'
 import type { PMConfig } from './types'
 import { writeFileSync, mkdirSync, readFileSync } from 'fs'
+import { render } from './render'
 
 const defaultAppDir = '.password-manager'
 const storageDir = 'storage'
@@ -48,9 +49,9 @@ export class Storage implements PMStorage {
     if (!pmDirectory) {
       return defaultAppPath
     }
-
+    
     if (!isExists(pmDirectory)) {
-      // TODO: render.invalidCustomAppDir(pmDirectory)
+      render.invalidCustomAppDir(pmDirectory)
       process.exit(1)
     }
 

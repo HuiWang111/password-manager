@@ -1,14 +1,17 @@
 {
   "name": "@kennys_wang/pm-core",
   "version": "1.0.1-alpha.0",
+  "author": "kennys_wang <kennys_wang@163.com>",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
   "license": "MIT",
-  "dependencies": {
-    "@types/node": "^18.0.3",
-    "typescript": "^4.7.4"
+  "repository": {
+    "url": "https://github.com/HuiWang111/password-manager/tree/main/packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/HuiWang111/password-manager/issues"
   },
   "scripts": {
     "build": "tsc"
@@ -20,5 +23,9 @@
     "dist",
     "package.json",
     "README.md"
-  ]
+  ],
+  "devDependencies": {
+    "@types/node": "^18.0.6",
+    "typescript": "^4.7.4"
+  }
 }

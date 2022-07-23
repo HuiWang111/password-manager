@@ -81,7 +81,8 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
       remark
     }])
   }
-
+  
+  // delete时未找到id不做提示，静默处理
   public delete(ids?: string[]): void {
     if (!ids || !ids.length) {
       throw new Error(`No id was given as input`)

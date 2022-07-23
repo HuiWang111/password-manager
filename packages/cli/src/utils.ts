@@ -1,7 +1,5 @@
 import type { PathLike } from 'fs'
 import { accessSync } from 'fs'
-import ConsoleGrid from 'console-grid'
-import { PM } from '@kennys_wang/pm-core'
 
 export function isExists(path: PathLike, mode?: number): boolean {
   try {
@@ -16,7 +14,7 @@ export function formatStringify(data: Record<string, any> | any[]): string {
   return JSON.stringify(data, null, 4)
 }
 
-export function groupBy(list?: Record<string, string>[], key?: string): Record<string, Record<string, string>[]> {
+export function groupBy(list?: Record<string, any>[], key?: string): Record<string, Record<string, any>[]> {
   if (!list || !list.length || !key) {
     return {}
   }
@@ -33,27 +31,4 @@ export function groupBy(list?: Record<string, string>[], key?: string): Record<s
   })
 
   return result
-}
-
-export function renderGrid(rows: PM[]): void {
-  const grid = new ConsoleGrid()
-  // @ts-ignore
-  const grouped = groupBy(rows, 'board')
-  
-  for (const key in grouped) {
-    console.info(`@${key} (${grouped[key].length})`)
-    const data = {
-      columns: [
-        { id: 'id', name: 'ID', type: 'string' },
-        { id: 'account', name: 'Account', type: 'string' },
-        { id: 'password', name: 'Password', type: 'string' },
-        { id: 'board', name: 'Board', type: 'string' },
-        { id: 'remark', name: 'Remark', type: 'string' }
-      ],
-      rows: grouped[key]
-    }
-  
-    grid.render(data)
-    console.info('')
-  }
 }
