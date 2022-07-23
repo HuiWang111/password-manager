@@ -1,5 +1,5 @@
 {
-  "name": "@pm/core",
+  "name": "@kennys_wang/pm-core",
   "version": "1.0.0-alpha.0",
   "main": "dist/index.js",
   "module": "dist/index.js",

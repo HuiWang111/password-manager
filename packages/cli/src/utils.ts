@@ -1,7 +1,7 @@
 import type { PathLike } from 'fs'
 import { accessSync } from 'fs'
 import ConsoleGrid from 'console-grid'
-import { PM } from '@pm/core'
+import { PM } from '@kennys_wang/pm-core'
 
 export function isExists(path: PathLike, mode?: number): boolean {
   try {

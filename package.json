@@ -9,10 +9,10 @@
     "nx": "^14.4.2"
   },
   "scripts": {
-    "pm": "lerna run pm --scope=@pm/cli --",
-    "dev:cli": "lerna run dev --scope=@pm/cli",
+    "pm": "lerna run pm --scope=@kennys_wang/pm-cli --",
+    "dev:cli": "lerna run dev --scope=@kennys_wang/pm-cli",
     "build": "lerna run build",
-    "build:cli": "lerna run build --scope=@pm/cli",
-    "build:core": "lerna run build --scope=@pm/core"
+    "build:cli": "lerna run build --scope=@kennys_wang/pm-cli",
+    "build:core": "lerna run build --scope=@kennys_wang/pm-core"
   }
 }

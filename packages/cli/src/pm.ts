@@ -1,5 +1,5 @@
-import { PasswordManager } from '@pm/core'
-import type { PMStorage } from '@pm/core'
+import { PasswordManager } from '@kennys_wang/pm-core'
+import type { PMStorage } from '@kennys_wang/pm-core'
 import { storage } from './storage'
 import CryptoJS from 'crypto-js'
 

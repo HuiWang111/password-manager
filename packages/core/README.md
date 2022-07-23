@@ -1,1 +1,1 @@
-# @pm/core
+# @kennys_wang/pm-core

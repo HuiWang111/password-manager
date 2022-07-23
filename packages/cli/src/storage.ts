@@ -1,6 +1,6 @@
 import { join } from 'path'
 import os from 'os'
-import type { PM, PMStorage } from '@pm/core'
+import type { PM, PMStorage } from '@kennys_wang/pm-core'
 import { config } from './config'
 import { isExists, formatStringify } from './utils'
 import { writeFileSync, mkdirSync, readFileSync } from 'fs'
