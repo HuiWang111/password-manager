@@ -21,6 +21,9 @@
     "package.json",
     "README.md"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@kennys_wang/pm-core": "*",
     "crypto-js": "^4.1.1"
