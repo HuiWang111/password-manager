@@ -13,6 +13,7 @@
     "dev:cli": "lerna run dev --scope=@kennys_wang/pm-cli",
     "build": "lerna run build",
     "build:cli": "lerna run build --scope=@kennys_wang/pm-cli",
-    "build:core": "lerna run build --scope=@kennys_wang/pm-core"
+    "build:core": "lerna run build --scope=@kennys_wang/pm-core",
+    "build:node": "lerna run build --scope=@kennys_wang/pm-node-service"
   }
 }

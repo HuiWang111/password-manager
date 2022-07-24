@@ -5,12 +5,12 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "node --experimental-json-modules scripts/build.js",
+    "build": "tsc",
     "pm": "node --experimental-specifier-resolution=node bin/index.js",
     "dev": "node scripts/watch.js"
   },
   "bin": {
-    "pm": "./bin/index.js"
+    "pm": "./bin/pm.js"
   },
   "repository": {
     "url": "https://github.com/HuiWang111/password-manager/tree/main/packages/cli"
@@ -19,7 +19,6 @@
     "url": "https://github.com/HuiWang111/password-manager/issues"
   },
   "devDependencies": {
-    "@types/crypto-js": "^4.1.1",
     "@types/figlet": "^1.5.4",
     "@types/node": "^18.0.3",
     "@types/signale": "^1.4.4",
@@ -28,10 +27,9 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@kennys_wang/pm-core": "^1.0.2-alpha.0",
+    "@kennys_wang/pm-node-service": "*",
     "clipboardy": "^3.0.0",
     "console-grid": "^1.0.17",
-    "crypto-js": "^4.1.1",
     "figlet": "^1.5.2",
     "meow": "^10.1.3",
     "picocolors": "^1.0.0",

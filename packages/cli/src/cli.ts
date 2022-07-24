@@ -1,32 +1,21 @@
+
 import type { TypedFlags } from 'meow'
-import type { PMFlags, PMConfig } from './types'
-import { PM } from './pm'
-import { help } from './help'
 import clipboard from 'clipboardy'
-import CryptoJS from 'crypto-js'
+import type { PMConfig } from '@kennys_wang/pm-node-service'
+import { createPM } from '@kennys_wang/pm-node-service'
+import type { PMFlags } from './types'
+import { help } from './help'
 import { render } from './render'
-
-const { AES, enc } = CryptoJS
-const SECRET_KEY = 'the secret key for password manager'
-
-function pwdEncoder(pwd: string): string {
-  return AES
-    .encrypt(pwd, SECRET_KEY)
-    .toString()
-}
-
-function pwdDecoder(pwd: string): string {
-  return AES
-    .decrypt(pwd, SECRET_KEY)
-    .toString(enc.Utf8)
-}
 
 export async function PMCli(
     input: string[],
     flags: TypedFlags<PMFlags> & Record<string, unknown>,
     version: string,
     defaultConfig: PMConfig): Promise<void> {
-  const passwordManager = new PM(defaultConfig, pwdEncoder, pwdDecoder)
+  const passwordManager = createPM(defaultConfig, (path: string) => {
+    render.invalidCustomAppDir(path)
+    process.exit(1)
+  })
 
   if (flags.create) {
     const board = input.find(i => i.startsWith('@'))?.slice(1)

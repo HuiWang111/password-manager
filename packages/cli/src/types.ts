@@ -1,9 +1,5 @@
 import type { BooleanFlag, AnyFlags } from 'meow'
 
-export interface PMConfig {
-  pmDirectory: string;
-}
-
 export interface PMFlags extends AnyFlags {
   create: BooleanFlag;
   delete: BooleanFlag;

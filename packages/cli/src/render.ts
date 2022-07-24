@@ -2,7 +2,7 @@ import picocolors from 'picocolors'
 import figlet from 'figlet'
 import signale from 'signale'
 import ConsoleGrid from 'console-grid'
-import { PM } from '@kennys_wang/pm-core'
+import type { PM } from '@kennys_wang/pm-core'
 import { groupBy } from './utils'
 import type { RenderGridOptions } from './types'
 

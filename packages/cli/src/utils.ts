@@ -1,19 +1,3 @@
-import type { PathLike } from 'fs'
-import { accessSync } from 'fs'
-
-export function isExists(path: PathLike, mode?: number): boolean {
-  try {
-    accessSync(path, mode)
-    return true
-  } catch (e) {
-    return false
-  }
-}
-
-export function formatStringify(data: Record<string, any> | any[]): string {
-  return JSON.stringify(data, null, 4)
-}
-
 export function groupBy(list?: Record<string, any>[], key?: string): Record<string, Record<string, any>[]> {
   if (!list || !list.length || !key) {
     return {}

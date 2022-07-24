@@ -5,7 +5,6 @@ import { Config } from './config'
 import { isExists, formatStringify } from './utils'
 import type { PMConfig } from './types'
 import { writeFileSync, mkdirSync, readFileSync } from 'fs'
-import { render } from './render'
 
 const defaultAppDir = '.password-manager'
 const storageDir = 'storage'
@@ -21,7 +20,9 @@ export class Storage implements PMStorage {
   private _archiveFile: string
   private _config: Config
 
-  constructor(defaultConfig: PMConfig) {
+  constructor(
+      defaultConfig: PMConfig,
+      private _invalidCustomAppDirCallback?: (path: string) => void) {
     this._config = new Config(defaultConfig)
 
     this.save = this.save.bind(this)
@@ -51,8 +52,8 @@ export class Storage implements PMStorage {
     }
     
     if (!isExists(pmDirectory)) {
-      render.invalidCustomAppDir(pmDirectory)
-      process.exit(1)
+      this._invalidCustomAppDirCallback?.(pmDirectory)
+      return ''
     }
 
     return join(pmDirectory, defaultAppDir)

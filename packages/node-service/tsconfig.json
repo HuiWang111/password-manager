@@ -17,6 +17,7 @@
     "downlevelIteration": true,
     "removeComments": true,
     "esModuleInterop": true,
+    "baseUrl": "./src",
     "declaration": true
   },
   "include": [

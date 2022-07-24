@@ -9,7 +9,7 @@ function clear() {
 }
 
 function main() {
-  watch('./src', (eventType, fileName) => {
+  watch('./src', () => {
     clear()
     timerId = setTimeout(() => {
       exec('yarn build').stdout.on('data', chunk => console.info(chunk))
