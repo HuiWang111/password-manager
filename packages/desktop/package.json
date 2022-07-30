@@ -1,0 +1,33 @@
+{
+  "name": "@kennys_wang/pm-desktop",
+  "version": "1.0.0-alpha.0",
+  "author": "kennys_wang <kennys_wang@163.com>",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "url": "https://github.com/HuiWang111/password-manager/tree/main/packages/desktop"
+  },
+  "bugs": {
+    "url": "https://github.com/HuiWang111/password-manager/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "daisyui": "^2.20.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "remesh": "^1.0.0",
+    "remesh-react": "^1.0.0",
+    "@kennys_wang/pm-node-service": "*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.15",
+    "@types/react-dom": "^18.0.6",
+    "@vitejs/plugin-react": "^2.0.0",
+    "electron": "^19.0.9",
+    "gulp": "^4.0.2",
+    "typescript": "^4.6.4",
+    "vite": "^3.0.0"
+  }
+}
