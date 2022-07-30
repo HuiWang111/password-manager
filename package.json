@@ -14,6 +14,8 @@
     "build": "lerna run build",
     "build:cli": "lerna run build --scope=@kennys_wang/pm-cli",
     "build:core": "lerna run build --scope=@kennys_wang/pm-core",
-    "build:node": "lerna run build --scope=@kennys_wang/pm-node-service"
+    "build:node": "lerna run build --scope=@kennys_wang/pm-node-service",
+    "dev:desktop": "lerna run dev --scope=@kennys_wang/pm-desktop",
+    "start:desktop": "lerna run start --scope=@kennys_wang/pm-desktop"
   }
 }

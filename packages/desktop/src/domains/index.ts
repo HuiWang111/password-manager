@@ -1,0 +1,1 @@
+export { SearchDomain } from './search'
