@@ -1,11 +1,10 @@
 {
   "name": "@kennys_wang/pm-core",
-  "version": "1.0.2-alpha.0",
+  "version": "1.0.2-alpha.1",
   "author": "kennys_wang <kennys_wang@163.com>",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "license": "MIT",
   "repository": {
     "url": "https://github.com/HuiWang111/password-manager/tree/main/packages/core"
@@ -14,7 +13,9 @@
     "url": "https://github.com/HuiWang111/password-manager/issues"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "rm -rf dist && yarn build:esm && yarn build:cjs",
+    "build:esm": "tsc --outDir dist/esm",
+    "build:cjs": "tsc --module commonjs --outDir dist/cjs"
   },
   "publishConfig": {
     "access": "public"
