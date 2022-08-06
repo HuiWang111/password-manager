@@ -39,9 +39,13 @@ export class Config {
   }
 
   public set(config: PMConfig): void {
+    const data = {
+      default: config
+    }
+
     writeFileSync(
       this._configFile,
-      formatStringify(config),
+      formatStringify(data),
       'utf8'
     )
   }
