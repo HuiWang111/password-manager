@@ -4,6 +4,7 @@ export interface PM {
   password: string;
   board: string;
   remark: string;
+  isArchived?: boolean;
 }
 
 export interface PMStorage {
@@ -11,4 +12,6 @@ export interface PMStorage {
   getList: () => PM[];
   getArchive: () => PM[];
   saveArchive: (list: PM[]) => void;
+  getConfig: () => any;
+  setConfig: (config: any) => void;
 }

@@ -10,6 +10,10 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     private _decoder?: (pwd: string) => string
   ) {}
 
+  /**
+   * @param pwd 密码
+   * @param isEncode 是否是加密，true是加密处理，false是解密处理
+   */
   private _transform(pwd: string, isEncode = true) {
     if (isEncode && this._encoder) {
       return this._encoder(pwd)
@@ -110,22 +114,28 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     }
   }
 
-  public getList(ids?: string[], mask = defaultMask): PM[] {
+  public getList(ids?: string[], mask = defaultMask, reverse = true): PM[] {
+    let list: PM[]
     if (ids) {
-      return this._storage.getList()
+      list = this._storage.getList()
         .filter(item => ids.includes(item.id))
         .map(item => ({
           ...item,
-          password: mask || this._transform(item.password, false)
+          password: mask || this._transform(item.password, false),
+          isArchived: false
+        }))
+    } else {
+      list = this._storage.getList()
+        .map(item => ({
+          ...item,
+          password: mask || this._transform(item.password, false),
+          isArchived: false
         }))
     }
 
-    return this._storage
-      .getList()
-      .map(item => ({
-        ...item,
-        password: mask || this._transform(item.password, false) 
-      }))
+    return reverse
+      ? list.reverse()
+      : list
   }
 
   public find(keyword: string, mask = defaultMask): PM[] {
@@ -155,13 +165,18 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     }))
   }
 
-  public getArchive(mask = defaultMask): PM[] {
-    return this._storage
+  public getArchive(mask = defaultMask, reverse = true): PM[] {
+    const list = this._storage
       .getArchive()
       .map(item => ({
         ...item,
-        password: mask || this._transform(item.password, false) 
+        password: mask || this._transform(item.password, false),
+        isArchived: true
       }))
+
+    return reverse
+      ? list.reverse()
+      : list
   }
 
   public edit(id: string, pwd: string): void {
@@ -213,4 +228,23 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
   public clean(): void {
     this._storage.saveArchive([])
   }
- }
+
+  public hasMainPassword(): boolean {
+    const config = this._storage.getConfig()
+    return Boolean(config.mainPassword)
+  }
+
+  public validateMainPassword(password: string): boolean {
+    const config = this._storage.getConfig()
+    const mainPassword = this._transform(config.mainPassword, false)
+    return password === mainPassword
+  }
+
+  public setMainPassword(password: string): void {
+    const config = this._storage.getConfig()
+    this._storage.setConfig({
+      ...config,
+      mainPassword: this._transform(password, true)
+    })
+  }
+}
