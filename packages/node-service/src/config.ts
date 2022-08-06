@@ -37,4 +37,12 @@ export class Config {
 
     return { ...this._defaultConfig, ...config }
   }
+
+  public set(config: PMConfig): void {
+    writeFileSync(
+      this._configFile,
+      formatStringify(config),
+      'utf8'
+    )
+  }
 }

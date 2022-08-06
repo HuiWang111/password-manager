@@ -110,4 +110,12 @@ export class Storage implements PMStorage {
     const json = formatStringify(list)
     writeFileSync(this._archiveFile, json)
   }
+
+  public getConfig(): PMConfig {
+    return this._config.get()
+  }
+
+  public setConfig(config: PMConfig): void {
+    this._config.set(config)
+  }
 }
