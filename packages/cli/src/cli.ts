@@ -11,7 +11,7 @@ export async function PMCli(
     input: string[],
     flags: TypedFlags<PMFlags> & Record<string, unknown>,
     version: string,
-    defaultConfig: PMConfig): Promise<void> {
+    defaultConfig: { default: PMConfig }): Promise<void> {
   const passwordManager = createPM(defaultConfig, (path: string) => {
     render.invalidCustomAppDir(path)
     process.exit(1)
