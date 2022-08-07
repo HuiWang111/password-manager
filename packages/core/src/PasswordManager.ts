@@ -2,6 +2,7 @@ import { PM, PMStorage } from './types'
 import { DEFAULT_BOARD } from './contants'
 
 const defaultMask = '******'
+const privateBoard = '__private__'
 
 export class PasswordManager<T extends PMStorage = PMStorage> {
   constructor(
@@ -133,6 +134,8 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
         }))
     }
 
+    list = list.filter(item => item.board !== privateBoard)
+
     return reverse
       ? list.reverse()
       : list
@@ -141,6 +144,11 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
   public find(keyword: string, mask = defaultMask): PM[] {
     this._validateEmpty(keyword, 'keyword')
     const list = this._storage.getList()
+
+    if (keyword.toLowerCase() === privateBoard) {
+      return list.filter(item => item.board === privateBoard)
+    }
+
     return list
       .filter(item => item.account.includes(keyword) || item.remark.includes(keyword))
       .map(item => ({
@@ -173,6 +181,7 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
         password: mask || this._transform(item.password, false),
         isArchived: true
       }))
+      .filter(item => item.board !== privateBoard)
 
     return reverse
       ? list.reverse()
