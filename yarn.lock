@@ -38,17 +38,6 @@
   resolved "https://registry.npmjs.org/@isaacs/string-locale-compare/-/string-locale-compare-1.1.0.tgz"
   integrity sha512-SQ7Kzhh9+D+ZW9MA0zkYv3VXhIDNx+LzM6EJ+/65I3QY+enU6Itte7E5XX7EWrqLW2FN4n06GWzBnPoC3th2aQ==
 
-"@kennys_wang/pm-core@*":
-  version "1.2.0-alpha.0"
-
-"@kennys_wang/pm-node-service@1.0.0-alpha.2":
-  version "1.0.0-alpha.2"
-  resolved "https://registry.yarnpkg.com/@kennys_wang/pm-node-service/-/pm-node-service-1.0.0-alpha.2.tgz#df7f3f82d5fe8a29abf79856bdffa0d9c68c2500"
-  integrity sha512-+dYpBpZWRb98gfl2fp75+AMIM0XmGDi92NJ09vANxSMleTjhIA3fsL9a+6eckVxziCy98GYz6U0VQTHSyHmQ5w==
-  dependencies:
-    "@kennys_wang/pm-core" "*"
-    crypto-js "^4.1.1"
-
 "@lerna/add@5.1.8":
   version "5.1.8"
   resolved "https://registry.npmjs.org/@lerna/add/-/add-5.1.8.tgz"
