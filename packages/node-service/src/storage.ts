@@ -21,7 +21,7 @@ export class Storage implements PMStorage {
   private _config: Config
 
   constructor(
-      defaultConfig: PMConfig,
+      defaultConfig: { default: PMConfig },
       private _invalidCustomAppDirCallback?: (path: string) => void) {
     this._config = new Config(defaultConfig)
 

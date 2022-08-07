@@ -33,7 +33,7 @@ export function formatStringify(data: Record<string, any> | any[]): string {
 }
 
 export function createPM(
-    defaultConfig: PMConfig,
+    defaultConfig: { default: PMConfig },
     invalidCustomAppDirCallback?: (path: string) => void,
     shouldEncrypt = true): PM {
   return new PM(

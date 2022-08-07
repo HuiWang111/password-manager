@@ -4,7 +4,7 @@ import { Storage } from './storage'
 
 export class PM extends PasswordManager {
   constructor(
-    defaultConfig: PMConfig,
+    defaultConfig: { default: PMConfig },
     invalidCustomAppDirCallback?: (path: string) => void,
     encoder?: ((pwd: string) => string),
     decoder?: ((pwd: string) => string)

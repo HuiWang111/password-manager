@@ -7,7 +7,7 @@ import { formatStringify, isExists } from './utils'
 export class Config {
   private _configFile: string
 
-  constructor(private _defaultConfig: PMConfig) {
+  constructor(private _defaultConfig: { default: PMConfig }) {
     this._configFile = join(os.homedir(), '.password-manager.json')
     this._createConfigFile()
   }
@@ -35,7 +35,7 @@ export class Config {
       config.pmDirectory = this._formatHomeDir(config.pmDirectory)
     }
 
-    return { ...this._defaultConfig, ...config }
+    return { ...this._defaultConfig.default, ...config }
   }
 
   public set(config: PMConfig): void {

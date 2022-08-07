@@ -39,7 +39,7 @@
   integrity sha512-SQ7Kzhh9+D+ZW9MA0zkYv3VXhIDNx+LzM6EJ+/65I3QY+enU6Itte7E5XX7EWrqLW2FN4n06GWzBnPoC3th2aQ==
 
 "@kennys_wang/pm-core@*":
-  version "1.1.0-alpha.0"
+  version "1.2.0-alpha.0"
 
 "@kennys_wang/pm-node-service@1.0.0-alpha.2":
   version "1.0.0-alpha.2"
