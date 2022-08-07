@@ -146,7 +146,12 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     const list = this._storage.getList()
 
     if (keyword.toLowerCase() === privateBoard) {
-      return list.filter(item => item.board === privateBoard)
+      return list
+        .filter(item => item.board === privateBoard)
+        .map(item => ({
+          ...item,
+          password: mask || this._transform(item.password, false)
+        }))
     }
 
     return list
