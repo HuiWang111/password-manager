@@ -141,25 +141,33 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
       : list
   }
 
-  public find(keyword: string, mask = defaultMask): PM[] {
+  public find(keyword: string, mask = defaultMask, reverse = true): PM[] {
     this._validateEmpty(keyword, 'keyword')
-    const list = this._storage.getList()
+    let list: PM[]
 
     if (keyword.toLowerCase() === privateBoard) {
-      return list
+      list = this._storage.getList()
         .filter(item => item.board === privateBoard)
         .map(item => ({
           ...item,
           password: mask || this._transform(item.password, false)
         }))
+
+      return reverse
+        ? list.reverse()
+        : list
     }
 
-    return list
-      .filter(item => item.account.includes(keyword) || item.remark.includes(keyword))
+    list = this._storage.getList()
+      .filter(item => (item.account.includes(keyword) || item.remark.includes(keyword)) && item.board !== privateBoard)
       .map(item => ({
         ...item,
         password: mask || this._transform(item.password, false) 
       }))
+
+    return reverse
+      ? list.reverse()
+      : list
   }
 
   public move(id: string, board?: string): void {
