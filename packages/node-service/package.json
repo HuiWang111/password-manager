@@ -1,6 +1,6 @@
 {
   "name": "@kennys_wang/pm-node-service",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "password manager nodejs services",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
