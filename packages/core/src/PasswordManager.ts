@@ -24,30 +24,30 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     return pwd
   }
 
-  private _generateId(ls?: PM[]): string {
-    const list = ls ?? this._storage.getList()
+  private async _generateId(ls?: PM[]): Promise<string> {
+    const list = ls ?? await this._storage.getList()
     const ids = list.map(item => parseInt(item.id, 10))
     const max = ids.length > 0 ? Math.max.apply(null, ids) : 0
 
     return String(max + 1)
   }
 
-  private _generateArchiveId(ls?: PM[]): string {
-    const list = ls ?? this._storage.getArchive()
+  private async _generateArchiveId(ls?: PM[]): Promise<string> {
+    const list = ls ?? await this._storage.getArchive()
     const ids = list.map(item => parseInt(item.id, 10))
     const max = ids.length > 0 ? Math.max.apply(null, ids) : 0
 
     return String(max + 1)
   }
 
-  private _validateIdAndGetList(id: string, isArchive = false): PM[] {
+  private async _validateIdAndGetList(id: string, isArchive = false): Promise<PM[]> {
     if (!id) {
       throw new Error(`No id was given as input`)
     }
 
     const list = isArchive
-      ? this._storage.getArchive()
-      : this._storage.getList()
+      ? await this._storage.getArchive()
+      : await this._storage.getList()
     
     if (list.every(item => item.id !== id)) {
       throw new Error(`Unable to find item with id: ${id}`)
@@ -64,22 +64,22 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     }
   }
 
-  public create(
+  public async create(
     account: string,
     pwd: string,
     board?: string,
     remark?: string
-  ): void {
+  ): Promise<void> {
     board = board || DEFAULT_BOARD
     remark = remark || ''
 
     this._validateEmpty(account, 'account')
     this._validateEmpty(pwd, 'password')
 
-    const list = this._storage.getList()
+    const list = await this._storage.getList()
     const password = this._transform(pwd)
-    this._storage.save([...list, {
-      id: this._generateId(),
+    await this._storage.save([...list, {
+      id: await this._generateId(),
       account,
       password,
       board,
@@ -88,13 +88,13 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
   }
   
   // delete时未找到id不做提示，静默处理
-  public delete(ids?: string[]): void {
+  public async delete(ids?: string[]): Promise<void> {
     if (!ids || !ids.length) {
       throw new Error(`[delete] No id was given as input`)
     }
 
-    const list = this._storage.getList()
-    const archiveList = this._storage.getArchive()
+    const list = await this._storage.getList()
+    const archiveList = await this._storage.getArchive()
     this._storage.save(list.filter(item => !ids.includes(item.id)))
 
     let id = Number(this._generateArchiveId(archiveList))
@@ -106,8 +106,8 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     ])
   }
 
-  public get(id: string, mask = defaultMask): PM {
-    const list = this._validateIdAndGetList(id)
+  public async get(id: string, mask = defaultMask): Promise<PM> {
+    const list = await this._validateIdAndGetList(id)
     const item = list.find(item => item.id === id)!
     return {
       ...item,
@@ -115,10 +115,10 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     }
   }
 
-  public getList(ids?: string[], mask = defaultMask, reverse = true): PM[] {
+  public async getList(ids?: string[], mask = defaultMask, reverse = true): Promise<PM[]> {
     let list: PM[]
     if (ids) {
-      list = this._storage.getList()
+      list = (await this._storage.getList())
         .filter(item => ids.includes(item.id))
         .map(item => ({
           ...item,
@@ -126,7 +126,7 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
           isArchived: false
         }))
     } else {
-      list = this._storage.getList()
+      list = (await this._storage.getList())
         .map(item => ({
           ...item,
           password: mask || this._transform(item.password, false),
@@ -141,12 +141,12 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
       : list
   }
 
-  public find(keyword: string, mask = defaultMask, reverse = true): PM[] {
+  public async find(keyword: string, mask = defaultMask, reverse = true): Promise<PM[]> {
     this._validateEmpty(keyword, 'keyword')
     let list: PM[]
 
     if (keyword.toLowerCase() === privateBoard) {
-      list = this._storage.getList()
+      list = (await this._storage.getList())
         .filter(item => item.board === privateBoard)
         .map(item => ({
           ...item,
@@ -158,7 +158,7 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
         : list
     }
 
-    list = this._storage.getList()
+    list = (await this._storage.getList())
       .filter(item => (item.account.includes(keyword) || item.remark.includes(keyword)) && item.board !== privateBoard)
       .map(item => ({
         ...item,
@@ -170,15 +170,15 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
       : list
   }
 
-  public move(id: string, board?: string): void {
+  public async move(id: string, board?: string): Promise<void> {
     if (!board) {
       // if borad is not given, do nothing
       return
     }
 
-    const list = this._validateIdAndGetList(id)
+    const list = await this._validateIdAndGetList(id)
     this._validateEmpty(board, 'board')
-    this._storage.save(list.map(item => {
+    await this._storage.save(list.map(item => {
       if (item.id === id) {
         item.board = board
       }
@@ -186,9 +186,8 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     }))
   }
 
-  public getArchive(mask = defaultMask, reverse = true): PM[] {
-    const list = this._storage
-      .getArchive()
+  public async getArchive(mask = defaultMask, reverse = true): Promise<PM[]> {
+    const list = (await this._storage.getArchive())
       .map(item => ({
         ...item,
         password: mask || this._transform(item.password, false),
@@ -201,12 +200,12 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
       : list
   }
 
-  public edit(id: string, pwd: string): void {
-    const list = this._validateIdAndGetList(id)
+  public async edit(id: string, pwd: string): Promise<void> {
+    const list = await this._validateIdAndGetList(id)
     this._validateEmpty(pwd, 'password')
 
     const password = this._transform(pwd)
-    this._storage.save(list.map(item => {
+    await this._storage.save(list.map(item => {
       if (item.id === id) {
         item.password = password
       }
@@ -214,29 +213,29 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     }))
   }
 
-  public restore(ids?: string[]): void {
+  public async restore(ids?: string[]): Promise<void> {
     if (!ids || !ids.length) {
       throw new Error(`[restore] No id was given as input`)
     }
 
-    const archiveList = this._storage.getArchive()
-    const list = this._storage.getList()
+    const archiveList = await this._storage.getArchive()
+    const list = await this._storage.getList()
 
     let id = Number(this._generateId(list))
-    this._storage.save([
+    await this._storage.save([
       ...list,
       ...archiveList
         .filter(item => ids.includes(item.id))
         .map(item => ({ ...item, id: String(id++) }))
     ])
-    this._storage.saveArchive(archiveList.filter(item => !ids.includes(item.id)))
+    await this._storage.saveArchive(archiveList.filter(item => !ids.includes(item.id)))
   }
 
-  public remark(id: string, remark: string): void {
-    const list = this._validateIdAndGetList(id)
+  public async remark(id: string, remark: string): Promise<void> {
+    const list = await this._validateIdAndGetList(id)
     this._validateEmpty(remark, 'remark')
 
-    this._storage.save(list.map(item => {
+    await this._storage.save(list.map(item => {
       if (item.id === id) {
         return {
           ...item,
@@ -247,31 +246,31 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     }))
   }
 
-  public clean(): void {
-    this._storage.saveArchive([])
+  public async clean(): Promise<void> {
+    await this._storage.saveArchive([])
   }
 
-  public hasMainPassword(): boolean {
-    const config = this._storage.getConfig()
+  public async hasMainPassword(): Promise<boolean> {
+    const config = await this._storage.getConfig()
     return Boolean(config.mainPassword)
   }
 
-  public validateMainPassword(password: string): boolean {
-    const config = this._storage.getConfig()
+  public async validateMainPassword(password: string): Promise<boolean> {
+    const config = await this._storage.getConfig()
     const mainPassword = this._transform(config.mainPassword, false)
     return password === mainPassword
   }
 
-  public setMainPassword(password: string): void {
-    const config = this._storage.getConfig()
-    this._storage.setConfig({
+  public async setMainPassword(password: string): Promise<void> {
+    const config = await this._storage.getConfig()
+    await this._storage.setConfig({
       ...config,
       mainPassword: this._transform(password, true)
     })
   }
 
-  public export(dest: string) {
-    const list = this._storage.getList()
-    this._storage.export(JSON.stringify(list), dest)
+  public async export(dest: string): Promise<void> {
+    const list = await this._storage.getList()
+    await this._storage.export(list, dest)
   }
 }

@@ -92,6 +92,15 @@ importers:
         specifier: ^4.7.4
         version: 4.9.5
 
+  packages/playground:
+    dependencies:
+      '@kennys_wang/pm-core':
+        specifier: workspace:^
+        version: link:../core
+      '@kennys_wang/pm-node-service':
+        specifier: workspace:^1.2.1
+        version: link:../node-service
+
 packages:
 
   /@babel/code-frame@7.24.2:

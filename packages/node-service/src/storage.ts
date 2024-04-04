@@ -1,10 +1,10 @@
-import { join } from 'path'
-import os from 'os'
-import type { PM, PMStorage } from '@kennys_wang/pm-core'
+import { join } from 'node:path'
+import os from 'node:os'
+import { writeFile, mkdir, readFile } from 'node:fs/promises'
 import { Config } from './config'
 import { isExists, formatStringify } from './utils'
+import type { PM, PMStorage } from '@kennys_wang/pm-core'
 import type { PMConfig } from './types'
-import { writeFileSync, mkdirSync, readFileSync } from 'fs'
 
 const defaultAppDir = '.password-manager'
 const storageDir = 'storage'
@@ -33,8 +33,8 @@ export class Storage implements PMStorage {
     this._initialize()
   }
 
-  private _initialize(): void {
-    this._appPath = this._getAppPath()
+  private async _initialize(): Promise<void> {
+    this._appPath = await this._getAppPath()
     this._storagePath = join(this._appPath, storageDir)
     this._archivePath = join(this._appPath, archiveDir)
     this._storageFile = join(this._storagePath, storageFile)
@@ -43,8 +43,8 @@ export class Storage implements PMStorage {
     this._ensureDirectories()
   }
 
-  private _getAppPath(): string {
-    const { pmDirectory } = this._config.get()
+  private async _getAppPath(): Promise<string> {
+    const { pmDirectory } = await this._config.get()
     const defaultAppPath = join(os.homedir(), defaultAppDir)
 
     if (!pmDirectory) {
@@ -59,70 +59,70 @@ export class Storage implements PMStorage {
     return join(pmDirectory, defaultAppDir)
   }
 
-  private _ensureMainAppDir(): void {
+  private async _ensureMainAppDir(): Promise<void> {
     if (!isExists(this._appPath)) {
-      mkdirSync(this._appPath)
+      await mkdir(this._appPath)
     }
   }
 
-  private _ensureStorageDir(): void {
+  private async _ensureStorageDir(): Promise<void> {
     if (!isExists(this._storagePath)) {
-      mkdirSync(this._storagePath)
+      await mkdir(this._storagePath)
     }
   }
 
-  private _ensureArchiveDir(): void {
+  private async _ensureArchiveDir(): Promise<void> {
     if (!isExists(this._archivePath)) {
-      mkdirSync(this._archivePath)
+      await mkdir(this._archivePath)
     }
   }
 
-  private _ensureDirectories(): void {
-    this._ensureMainAppDir()
-    this._ensureStorageDir()
-    this._ensureArchiveDir()
+  private async _ensureDirectories(): Promise<void> {
+    await this._ensureMainAppDir()
+    await this._ensureStorageDir()
+    await this._ensureArchiveDir()
   }
 
-  public save(list: PM[]): void {
+  public async save(list: PM[]): Promise<void> {
     const json = formatStringify(list)
-    writeFileSync(this._storageFile, json)
+    await writeFile(this._storageFile, json)
   }
 
-  public getList(): PM[] {
+  public async getList(): Promise<PM[]> {
     if (!isExists(this._storageFile)) {
       return []
     }
 
-    const json = readFileSync(this._storageFile, 'utf-8')
+    const json = await readFile(this._storageFile, 'utf-8')
     return JSON.parse(json)
   }
 
-  public getArchive(): PM[] {
+  public async getArchive(): Promise<PM[]> {
     if (!isExists(this._archiveFile)) {
       return []
     }
 
-    const json = readFileSync(this._archiveFile, 'utf8')
+    const json = await readFile(this._archiveFile, 'utf8')
     return JSON.parse(json)
   }
 
-  public saveArchive(list: PM[]): void {
+  public async saveArchive(list: PM[]): Promise<void> {
     const json = formatStringify(list)
-    writeFileSync(this._archiveFile, json)
+    await writeFile(this._archiveFile, json)
   }
 
-  public getConfig(): PMConfig {
+  public getConfig(): Promise<PMConfig> {
     return this._config.get()
   }
 
-  public setConfig(config: PMConfig): void {
-    this._config.set(config)
+  public async setConfig(config: PMConfig): Promise<void> {
+    await this._config.set(config)
   }
 
-  public export(content: string, dest: string) {
-    writeFileSync(
-      content,
+  public async export(content: PM[], dest: string): Promise<void> {
+    await writeFile(
       dest,
+      formatStringify(content),
     )
   }
 }

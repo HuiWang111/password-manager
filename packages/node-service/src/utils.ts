@@ -1,7 +1,7 @@
-import type { PathLike } from 'fs'
-import { accessSync } from 'fs'
+import { access } from 'node:fs/promises'
 import CryptoJS from 'crypto-js'
 import { PM } from './pm'
+import type { PathLike } from 'node:fs'
 import type { PMConfig } from './types'
 
 const { AES, enc } = CryptoJS
@@ -19,9 +19,9 @@ function pwdDecoder(pwd: string): string {
     .toString(enc.Utf8)
 }
 
-export function isExists(path: PathLike, mode?: number): boolean {
+export async function isExists(path: PathLike, mode?: number): Promise<boolean> {
   try {
-    accessSync(path, mode)
+    await access(path, mode)
     return true
   } catch (e) {
     return false

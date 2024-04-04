@@ -1,6 +1,6 @@
-import os from 'os'
-import { join } from 'path'
-import { writeFileSync, readFileSync } from 'fs'
+import os from 'node:os'
+import { join } from 'node:path'
+import { writeFile, readFile } from 'node:fs/promises'
 import { PMConfig } from './types'
 import { formatStringify, isExists } from './utils'
 
@@ -12,10 +12,10 @@ export class Config {
     this._createConfigFile()
   }
 
-  private _createConfigFile() {
+  private async _createConfigFile() {
     if (!isExists(this._configFile)) {
       const json = formatStringify(this._defaultConfig)
-      writeFileSync(this._configFile, json, 'utf8')
+      await writeFile(this._configFile, json, 'utf8')
     }
   }
 
@@ -27,8 +27,8 @@ export class Config {
     return join(os.homedir(), dir.replace(/^~/g, ''))
   }
 
-  public get(): PMConfig {
-    const content = readFileSync(this._configFile, 'utf8')
+  public async get(): Promise<PMConfig> {
+    const content = await readFile(this._configFile, 'utf8')
     const config: PMConfig = JSON.parse(content.toString()).default
 
     if (config.pmDirectory) {
@@ -38,12 +38,12 @@ export class Config {
     return { ...this._defaultConfig.default, ...config }
   }
 
-  public set(config: PMConfig): void {
+  public async set(config: PMConfig): Promise<void> {
     const data = {
       default: config
     }
 
-    writeFileSync(
+    await writeFile(
       this._configFile,
       formatStringify(data),
       'utf8'
