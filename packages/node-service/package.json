@@ -14,7 +14,7 @@
   "author": "kennys wang",
   "license": "MIT",
   "scripts": {
-    "build": "rm -rf dist && yarn build:esm && yarn build:cjs",
+    "build": "rm -rf dist && pnpm run build:esm && pnpm run build:cjs",
     "build:esm": "tsc --outDir dist/esm",
     "build:cjs": "tsc --module commonjs --outDir dist/cjs"
   },
