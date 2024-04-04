@@ -118,4 +118,11 @@ export class Storage implements PMStorage {
   public setConfig(config: PMConfig): void {
     this._config.set(config)
   }
+
+  public export(content: string, dest: string) {
+    writeFileSync(
+      content,
+      dest,
+    )
+  }
 }

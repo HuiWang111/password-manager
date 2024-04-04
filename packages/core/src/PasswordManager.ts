@@ -90,7 +90,7 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
   // delete时未找到id不做提示，静默处理
   public delete(ids?: string[]): void {
     if (!ids || !ids.length) {
-      throw new Error(`No id was given as input`)
+      throw new Error(`[delete] No id was given as input`)
     }
 
     const list = this._storage.getList()
@@ -216,7 +216,7 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
 
   public restore(ids?: string[]): void {
     if (!ids || !ids.length) {
-      throw new Error(`No id was given as input`)
+      throw new Error(`[restore] No id was given as input`)
     }
 
     const archiveList = this._storage.getArchive()
@@ -268,5 +268,10 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
       ...config,
       mainPassword: this._transform(password, true)
     })
+  }
+
+  public export(dest: string) {
+    const list = this._storage.getList()
+    this._storage.export(JSON.stringify(list), dest)
   }
 }

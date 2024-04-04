@@ -14,4 +14,5 @@ export interface PMStorage {
   saveArchive: (list: PM[]) => void;
   getConfig: () => any;
   setConfig: (config: any) => void;
+  export: (content: string, dest: string) => void;
 }

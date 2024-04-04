@@ -1,2 +1,2 @@
 # @kennys_wang/pm-node-service
-密码管理nodejs端的核心逻辑
+负责处理存储、加密解密等逻辑。
