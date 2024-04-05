@@ -10,6 +10,6 @@ async function main() {
   })
   
   setTimeout(async () => {
-    await passwordManager.export('D:\\Desktop\\pm.json')
+    await passwordManager.clearMainPassword()
   }, 1000)
 }

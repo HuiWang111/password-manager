@@ -261,6 +261,15 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     return password === mainPassword
   }
 
+  public async clearMainPassword(): Promise<void> {
+    const config = await this._storage.getConfig()
+
+    if (config.mainPassword) {
+      delete config.mainPassword
+      await this._storage.setConfig(config)
+    }
+  }
+
   public async setMainPassword(password: string): Promise<void> {
     const config = await this._storage.getConfig()
     await this._storage.setConfig({
