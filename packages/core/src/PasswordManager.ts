@@ -26,16 +26,28 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
 
   private async _generateId(ls?: PM[]): Promise<string> {
     const list = ls ?? await this._storage.getList()
-    const ids = list.map(item => parseInt(item.id, 10))
-    const max = ids.length > 0 ? Math.max.apply(null, ids) : 0
+    let max: number
+
+    if (list.length) {
+      const ids = list.map(item => parseInt(item.id, 10))
+      max = ids.length > 0 ? Math.max.apply(null, ids) : 0
+    } else {
+      max = 0
+    }
 
     return String(max + 1)
   }
 
   private async _generateArchiveId(ls?: PM[]): Promise<string> {
     const list = ls ?? await this._storage.getArchive()
-    const ids = list.map(item => parseInt(item.id, 10))
-    const max = ids.length > 0 ? Math.max.apply(null, ids) : 0
+    let max: number
+
+    if (list.length) {
+      const ids = list.map(item => parseInt(item.id, 10))
+      max = ids.length > 0 ? Math.max.apply(null, ids) : 0
+    } else {
+      max = 0
+    }
 
     return String(max + 1)
   }
@@ -62,6 +74,10 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     if (!value) {
       throw new Error(`No ${key} was given as input`)
     }
+  }
+
+  public async replace(list: PM[]) {
+    await this._storage.save(list)
   }
 
   public async create(
@@ -97,7 +113,7 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     const archiveList = await this._storage.getArchive()
     this._storage.save(list.filter(item => !ids.includes(item.id)))
 
-    let id = Number(this._generateArchiveId(archiveList))
+    let id = Number(await this._generateArchiveId(archiveList))
     this._storage.saveArchive([
       ...archiveList,
       ...list
@@ -113,6 +129,10 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
       ...item,
       password: mask || this._transform(item.password, false)
     }
+  }
+
+  public async getOriginalList() {
+    return this._storage.getList()
   }
 
   public async getList(ids?: string[], mask = defaultMask, reverse = true): Promise<PM[]> {
@@ -221,7 +241,7 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     const archiveList = await this._storage.getArchive()
     const list = await this._storage.getList()
 
-    let id = Number(this._generateId(list))
+    let id = Number(await this._generateId(list))
     await this._storage.save([
       ...list,
       ...archiveList
