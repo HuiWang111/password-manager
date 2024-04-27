@@ -13,7 +13,7 @@ export class Config {
   }
 
   private async _createConfigFile() {
-    if (!isExists(this._configFile)) {
+    if (!await isExists(this._configFile)) {
       const json = formatStringify(this._defaultConfig)
       await writeFile(this._configFile, json, 'utf8')
     }

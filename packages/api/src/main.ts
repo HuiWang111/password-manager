@@ -4,6 +4,6 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   app.setGlobalPrefix('password-manager')
-  await app.listen(30001);
+  await app.listen(3001);
 }
 bootstrap();
