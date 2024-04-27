@@ -165,7 +165,9 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     this._validateEmpty(keyword, 'keyword')
     let list: PM[]
 
-    if (keyword.toLowerCase() === privateBoard) {
+    keyword = keyword.trim().toLowerCase()
+
+    if (keyword === privateBoard) {
       list = (await this._storage.getList())
         .filter(item => item.board === privateBoard)
         .map(item => ({
@@ -179,7 +181,7 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     }
 
     list = (await this._storage.getList())
-      .filter(item => (item.account.includes(keyword) || item.remark.includes(keyword)) && item.board !== privateBoard)
+      .filter(item => (item.account.toLowerCase().includes(keyword) || item.remark.trim().includes(keyword)) && item.board !== privateBoard)
       .map(item => ({
         ...item,
         password: mask || this._transform(item.password, false) 

@@ -12,7 +12,7 @@ export class AppController {
     if (toBoolean(data.original)) {
       return this.appService.getOriginalList()
     }
-    return this.appService.getList(data.ids, data.mask, toBoolean(data.reverse))
+    return this.appService.getList(data.ids, data.mask, toBoolean(data.reverse, true))
   }
 
   @Put('/account')
