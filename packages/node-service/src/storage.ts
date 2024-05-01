@@ -51,7 +51,7 @@ export class Storage implements PMStorage {
       return defaultAppPath
     }
     
-    if (!isExists(pmDirectory)) {
+    if (!await isExists(pmDirectory)) {
       this._invalidCustomAppDirCallback?.(pmDirectory)
       return ''
     }
@@ -60,19 +60,19 @@ export class Storage implements PMStorage {
   }
 
   private async _ensureMainAppDir(): Promise<void> {
-    if (!isExists(this._appPath)) {
+    if (!await isExists(this._appPath)) {
       await mkdir(this._appPath)
     }
   }
 
   private async _ensureStorageDir(): Promise<void> {
-    if (!isExists(this._storagePath)) {
+    if (!await isExists(this._storagePath)) {
       await mkdir(this._storagePath)
     }
   }
 
   private async _ensureArchiveDir(): Promise<void> {
-    if (!isExists(this._archivePath)) {
+    if (!await isExists(this._archivePath)) {
       await mkdir(this._archivePath)
     }
   }
@@ -89,7 +89,7 @@ export class Storage implements PMStorage {
   }
 
   public async getList(): Promise<PM[]> {
-    if (!isExists(this._storageFile)) {
+    if (!await isExists(this._storageFile)) {
       return []
     }
 
@@ -98,7 +98,7 @@ export class Storage implements PMStorage {
   }
 
   public async getArchive(): Promise<PM[]> {
-    if (!isExists(this._archiveFile)) {
+    if (!await isExists(this._archiveFile)) {
       return []
     }
 
