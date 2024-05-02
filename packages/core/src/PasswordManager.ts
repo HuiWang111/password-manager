@@ -181,7 +181,7 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     }
 
     list = (await this._storage.getList())
-      .filter(item => (item.account.toLowerCase().includes(keyword) || item.remark.trim().includes(keyword)) && item.board !== privateBoard)
+      .filter(item => (item.account.toLowerCase().includes(keyword) || item.remark.toLowerCase().includes(keyword)) && item.board !== privateBoard)
       .map(item => ({
         ...item,
         password: mask || this._transform(item.password, false) 
