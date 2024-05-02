@@ -9,7 +9,6 @@ export class Config {
 
   constructor(private _defaultConfig: { default: PMConfig }) {
     this._configFile = join(os.homedir(), '.password-manager.json')
-    this._createConfigFile()
   }
 
   private async _createConfigFile() {
@@ -28,6 +27,7 @@ export class Config {
   }
 
   public async get(): Promise<PMConfig> {
+    await this._createConfigFile()
     const content = await readFile(this._configFile, 'utf8')
     const config: PMConfig = JSON.parse(content.toString()).default
 
@@ -39,6 +39,7 @@ export class Config {
   }
 
   public async set(config: PMConfig): Promise<void> {
+    await this._createConfigFile()
     const data = {
       default: config
     }
