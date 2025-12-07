@@ -19,7 +19,7 @@ async function transformText () {
     const list = JSON.parse(json)
     list.forEach((item) => {
       if (!isLikelyEncoded(item.remark)) {
-        item.remark = decodeURIComponent(item.remark || '')
+        item.remark = encodeURIComponent(item.remark || '')
       }
     })
     await writeFile(path, JSON.stringify(list, null, 2), 'utf-8')
