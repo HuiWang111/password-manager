@@ -15,13 +15,20 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
    * @param pwd 密码
    * @param isEncode 是否是加密，true是加密处理，false是解密处理
    */
-  private _transform(pwd: string, isEncode = true) {
+  private _transformPassword(pwd: string, isEncode = true) {
     if (isEncode && this._encoder) {
       return this._encoder(pwd)
     } else if (!isEncode && this._decoder) {
       return this._decoder(pwd)
     }
     return pwd
+  }
+
+  private _transformText(text: string, isEncode = true) {
+    if (isEncode) {
+      return encodeURIComponent(text)
+    }
+    return decodeURIComponent(text)
   }
 
   private async _generateId(ls?: PM[]): Promise<string> {
@@ -93,13 +100,13 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     this._validateEmpty(pwd, 'password')
 
     const list = await this._storage.getList()
-    const password = this._transform(pwd)
+    const password = this._transformPassword(pwd)
     await this._storage.save([...list, {
       id: await this._generateId(),
       account,
       password,
       board,
-      remark
+      remark: this._transformText(remark || ''),
     }])
   }
   
@@ -127,7 +134,8 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     const item = list.find(item => item.id === id)!
     return {
       ...item,
-      password: mask || this._transform(item.password, false)
+      password: mask || this._transformPassword(item.password, false),
+      remark: this._transformText(item.remark || '', false),
     }
   }
 
@@ -142,15 +150,17 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
         .filter(item => ids.includes(item.id))
         .map(item => ({
           ...item,
-          password: mask || this._transform(item.password, false),
-          isArchived: false
+          password: mask || this._transformPassword(item.password, false),
+          isArchived: false,
+          remark: this._transformText(item.remark || '', false),
         }))
     } else {
       list = (await this._storage.getList())
         .map(item => ({
           ...item,
-          password: mask || this._transform(item.password, false),
-          isArchived: false
+          password: mask || this._transformPassword(item.password, false),
+          isArchived: false,
+          remark: this._transformText(item.remark || '', false),
         }))
     }
 
@@ -172,7 +182,8 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
         .filter(item => item.board === privateBoard)
         .map(item => ({
           ...item,
-          password: mask || this._transform(item.password, false)
+          password: mask || this._transformPassword(item.password, false),
+          remark: this._transformText(item.remark || '', false),
         }))
 
       return reverse
@@ -184,7 +195,8 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
       .filter(item => (item.account.toLowerCase().includes(keyword) || item.remark.toLowerCase().includes(keyword)) && item.board !== privateBoard)
       .map(item => ({
         ...item,
-        password: mask || this._transform(item.password, false) 
+        password: mask || this._transformPassword(item.password, false),
+        remark: this._transformText(item.remark || '', false),
       }))
 
     return reverse
@@ -212,8 +224,9 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     const list = (await this._storage.getArchive())
       .map(item => ({
         ...item,
-        password: mask || this._transform(item.password, false),
-        isArchived: true
+        password: mask || this._transformPassword(item.password, false),
+        isArchived: true,
+        remark: this._transformText(item.remark || '', false),
       }))
       .filter(item => item.board !== privateBoard)
 
@@ -226,7 +239,7 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     const list = await this._validateIdAndGetList(id)
     this._validateEmpty(pwd, 'password')
 
-    const password = this._transform(pwd)
+    const password = this._transformPassword(pwd)
     await this._storage.save(list.map(item => {
       if (item.id === id) {
         item.password = password
@@ -261,7 +274,7 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
       if (item.id === id) {
         return {
           ...item,
-          remark
+          remark: this._transformText(remark || ''),
         }
       }
       return { ...item }
@@ -279,7 +292,7 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
 
   public async validateMainPassword(password: string): Promise<boolean> {
     const config = await this._storage.getConfig()
-    const mainPassword = this._transform(config.mainPassword, false)
+    const mainPassword = this._transformPassword(config.mainPassword, false)
     return password === mainPassword
   }
 
@@ -296,7 +309,7 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     const config = await this._storage.getConfig()
     await this._storage.setConfig({
       ...config,
-      mainPassword: this._transform(password, true)
+      mainPassword: this._transformPassword(password, true)
     })
   }
 

@@ -33,13 +33,13 @@ export async function PMCli(
 
   if (flags.copy) {
     const id = input[0]
-    const item = passwordManager.get(id, '')
+    const item = await passwordManager.get(id, '')
     clipboard.writeSync(item.password)
     return render.successCopy(item.account)
   }
 
   if (flags.show) {
-    const list = passwordManager.getList(input, '')
+    const list = await passwordManager.getList(input, '')
     return render.grid(list)
   }
 
@@ -55,7 +55,7 @@ export async function PMCli(
   }
 
   if (flags.find) {
-    const list = passwordManager.find(input[0])
+    const list = await passwordManager.find(input[0])
     return render.grid(list)
   }
 
@@ -67,7 +67,7 @@ export async function PMCli(
   }
   
   if (flags.archive) {
-    const archiveList = passwordManager.getArchive()
+    const archiveList = await passwordManager.getArchive()
     return render.grid(archiveList, {
       beforeWarning: 'Follwing accounts has been archived'
     })
@@ -95,6 +95,6 @@ export async function PMCli(
   }
 
   await render.logo()
-  const list = passwordManager.getList()
+  const list = await passwordManager.getList()
   return render.grid(list)
 }
