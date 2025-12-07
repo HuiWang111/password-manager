@@ -1,4 +1,4 @@
-const { readFile } = require('node:fs/promises');
+const { readFile, writeFile } = require('node:fs/promises');
 const os = require('node:os')
 const { join } = require('node:path')
 
@@ -15,13 +15,14 @@ function isLikelyEncoded(str) {
 async function transformText () {
   try {
     const path = join(os.homedir(), '.password-manager/storage/storage.json')
-    const json = await readFile(path)
+    const json = await readFile(path, 'utf-8')
     const list = JSON.parse(json)
     list.forEach((item) => {
       if (!isLikelyEncoded(item.remark)) {
         item.remark = decodeURIComponent(item.remark || '')
       }
     })
+    await writeFile(path, JSON.stringify(list, null, 2), 'utf-8')
   } catch(e) {
     console.error(e)
   }
