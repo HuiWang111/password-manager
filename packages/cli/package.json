@@ -1,6 +1,6 @@
 {
   "name": "@kennys_wang/pm-cli",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "author": "kennys_wang <kennys_wang@163.com>",
   "license": "MIT",
   "type": "module",
@@ -27,8 +27,8 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@kennys_wang/pm-core": "workspace:^1.2.8",
-    "@kennys_wang/pm-node-service": "^1.2.8",
+    "@kennys_wang/pm-core": "workspace:^1.2.9",
+    "@kennys_wang/pm-node-service": "^1.2.9",
     "clipboardy": "^3.0.0",
     "console-grid": "^1.0.17",
     "figlet": "^1.5.2",

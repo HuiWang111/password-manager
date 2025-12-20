@@ -1,6 +1,6 @@
 {
   "name": "@kennys_wang/pm-core",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "author": "kennys_wang <kennys_wang@163.com>",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
