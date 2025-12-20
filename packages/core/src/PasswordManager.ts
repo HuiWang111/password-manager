@@ -1,5 +1,6 @@
 import { PM, PMStorage } from './types'
 import { DEFAULT_BOARD } from './contants'
+import { containsIgnoreCase } from 'utils'
 
 const defaultMask = '******'
 const privateBoard = '__private__'
@@ -192,7 +193,12 @@ export class PasswordManager<T extends PMStorage = PMStorage> {
     }
 
     list = (await this._storage.getList())
-      .filter(item => (item.account.toLowerCase().includes(keyword) || item.remark.toLowerCase().includes(keyword)) && item.board !== privateBoard)
+      .filter(item => {
+        const { account, remark: r, board } = item
+        const remark = this._transformText(r || '', false)
+
+        return containsIgnoreCase([account, remark], keyword) && board !== privateBoard
+      })
       .map(item => ({
         ...item,
         password: mask || this._transformPassword(item.password, false),
