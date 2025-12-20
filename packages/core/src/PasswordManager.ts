@@ -1,6 +1,6 @@
 import { PM, PMStorage } from './types'
 import { DEFAULT_BOARD } from './contants'
-import { containsIgnoreCase } from 'utils'
+import { containsIgnoreCase } from './utils'
 
 const defaultMask = '******'
 const privateBoard = '__private__'
